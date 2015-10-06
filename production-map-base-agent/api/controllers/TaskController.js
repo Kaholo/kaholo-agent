@@ -17,7 +17,7 @@ module.exports = {
 		    { form: operation },
 		    function (error, response, body) {
 		        if (!error && response.statusCode == 200) {
-		            return res.json(body);
+		            return res.send(body);
 		        }
 		    }
 		);
