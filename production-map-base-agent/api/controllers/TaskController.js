@@ -9,18 +9,15 @@ var DEDICATED_AGENT_URL = "http://localhost:8100/task/register";
 module.exports = {
 	register: function (req, res) {
 		var execution_result = {msg: "registered task!"};
-		var sysfile = {
-			name: req.body.name,
-			content: req.body.content
-		};
+		var operation = req.body;
 		console.log("Got Task");
-		console.log(sysfile);
+		console.log(operation);
 		request.post(
 		    DEDICATED_AGENT_URL,
-		    { form: sysfile },
+		    { form: operation },
 		    function (error, response, body) {
 		        if (!error && response.statusCode == 200) {
-		            return res.json(response);
+		            return res.json(body);
 		        }
 		    }
 		);
