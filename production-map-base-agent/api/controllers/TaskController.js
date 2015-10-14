@@ -6,31 +6,23 @@
  */
 var request = require('request');
 var DEDICATED_AGENT_URL_CLI = "http://localhost:8100/task/register";
-var DEDICATED_AGENT_URL_FTP = "http://localhost:8100/task/registerFtp";
+var DEDICATED_AGENT_URL_FILESERVER = "http://localhost:8100/task/registerfileserver";
 module.exports = {
 	register: function (req, res) {
 		var execution_result = {msg: "registered task!"};
-		var operation = req.body;
+		var action = req.body;
 		console.log("Got Task");
-		console.log(operation);
+		console.log(action);
+		var DEDICATED_AGENT_URL;
+		if(action.server.type === "CommandLine"){
+			DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_CLI;
+		}
+		else{
+			DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_FILESERVER;
+		}
 		request.post(
 		    DEDICATED_AGENT_URL_CLI,
-		    { form: operation },
-		    function (error, response, body) {
-		        if (!error && response.statusCode == 200) {
-		            return res.send(body);
-		        }
-		    }
-		);
-	},
-	registerFtp: function(req, res){
-		var execution_result = {msg: "registered task!"};
-		var operation = req.body;
-		console.log("Got Task");
-		console.log(operation);
-		request.post(
-		    DEDICATED_AGENT_URL_FTP,
-		    { form: operation },
+		    { form: action },
 		    function (error, response, body) {
 		        if (!error && response.statusCode == 200) {
 		            return res.send(body);
