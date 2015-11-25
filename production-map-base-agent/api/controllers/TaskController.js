@@ -13,13 +13,13 @@ module.exports = {
 		var action = req.body;
 		console.log("Got Task");
 		console.log(action);
-		var DEDICATED_AGENT_URL;
-		if(action.server.type === "CommandLine"){
-			DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_CLI;
-		}
-		else{
-			DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_FILESERVER;
-		}
+		var DEDICATED_AGENT_URL = action.server.url;
+		// if(action.server.type === "CommandLine"){
+		// 	DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_CLI;
+		// }
+		// else{
+		// 	DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_FILESERVER;
+		// }
 		request.post(
 		    DEDICATED_AGENT_URL_CLI,
 		    { form: action },
