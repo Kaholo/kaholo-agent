@@ -25,7 +25,17 @@ module.exports = {
 		    { form: action },
 		    function (error, response, body) {
 		        if (!error && response.statusCode == 200) {
-		            return res.send(body);
+		            body = JSON.parse(body);
+		            if(body.hasOwnProperty("error")){
+		            	res.status(500);
+		            	sails.log("Return with status 500");
+		            }
+		            sails.log(body);
+		            return res.send(JSON.stringify(body));
+		        }
+		        else{
+		        	sails.log("WTF!!!");
+		        	return res.send(JSON.stringify({error: error}));
 		        }
 		    }
 		);
