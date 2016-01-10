@@ -14,12 +14,12 @@ module.exports = {
 		console.log("Got Task");
 		console.log(action);
 		var DEDICATED_AGENT_URL = action.server.url;
-		if(action.server.type === "CommandLine"){
-			DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_CLI;
-		}
-		else{
-			DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_FILESERVER;
-		}
+		// if(action.server.type === "CommandLine"){
+		// 	DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_CLI;
+		// }
+		// else{
+		// 	DEDICATED_AGENT_URL = DEDICATED_AGENT_URL_FILESERVER;
+		// }
 		request.post(
 		    DEDICATED_AGENT_URL,
 		    { form: action },
@@ -34,7 +34,7 @@ module.exports = {
 		            return res.send(JSON.stringify(body));
 		        }
 		        else{
-		        	sails.log("WTF!!!");
+		        	sails.log.error(error);
 		        	return res.send(JSON.stringify({error: error}));
 		        }
 		    }
