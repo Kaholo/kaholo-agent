@@ -35,6 +35,7 @@ module.exports = {
 		        }
 		        else{
 		        	sails.log.error(error);
+		        	res.status(500);
 		        	return res.send(JSON.stringify({error: error}));
 		        }
 		    }
