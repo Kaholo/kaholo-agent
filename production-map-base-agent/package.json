@@ -1,8 +1,7 @@
 {
   "name": "production-map-base-agent",
-  "private": true,
-  "version": "0.0.0",
-  "description": "a Sails application",
+  "version": "0.0.1",
+  "description": "production map base agent",
   "keywords": [],
   "dependencies": {
     "ejs": "~0.8.4",
@@ -26,7 +25,7 @@
   },
   "scripts": {
     "debug": "node debug app.js",
-    "start": "node app.js"
+    "start": "sails lift --prod"
   },
   "main": "app.js",
   "repository": {
