@@ -1,0 +1,14 @@
+{
+  "name": "command_line",
+  "version": "1.0.0",
+  "description": "",
+  "main": "command_line.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tal Levi <tal@any-app.com>",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.5.1"
+  }
+}
