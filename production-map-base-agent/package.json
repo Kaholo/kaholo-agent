@@ -1,9 +1,8 @@
 {
-  "name": "pm-base-agent",
-  "version": "0.0.0",
-  "private": true,
+  "name": "production-map-base-agent",
+  "version": "0.1.1",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www 8090"
   },
   "dependencies": {
     "body-parser": "~1.13.2",

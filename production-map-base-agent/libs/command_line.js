@@ -1,6 +1,5 @@
 var exec = require('child_process').exec;
 var q = require('q');
-var lodash = require('lodash');
 
 exports.execute = function(action) {
 	var deferred = q.defer();
