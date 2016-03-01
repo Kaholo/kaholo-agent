@@ -1,8 +1,8 @@
 {
   "name": "production-map-base-agent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "scripts": {
-    "start": "node ./bin/www 8090"
+    "start": "forever start ./bin/www 8090"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
