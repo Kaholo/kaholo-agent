@@ -33,3 +33,5 @@ exports.createInstance = function (action) {
     });
     return deferred.promise;
 }
+
+exports.name = "AmazonEC2";

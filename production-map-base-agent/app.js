@@ -23,7 +23,6 @@ app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 // app.use(function(req, res, next) {
@@ -36,14 +35,14 @@ app.use('/users', users);
 
 // development error handler
 // will print stacktrace
-// if (app.get('env') === 'development') {
-//   app.use(function(err, req, res, next) {
-//     res.status(err.status || 500);
-//     console.log(err.message);
-//     console.log(err);
-//     res.send(JSON.stringify({'error': err.message}));
-//   });
-// }
+ if (app.get('env') === 'development') {
+   app.use(function(err, req, res, next) {
+     res.status(err.status || 500);
+     console.log(err.message);
+     console.log(err);
+     res.send(JSON.stringify({'error': err.message}));
+   });
+ }
 
 
 

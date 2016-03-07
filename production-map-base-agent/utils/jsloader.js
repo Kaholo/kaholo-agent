@@ -27,6 +27,10 @@ function LoadModules(path) {
             try {
                 var module = require(path);
                 console.log(path);
+                if(!module.name){
+                    console.log("no name exported in module");
+                    return;
+                }
                 if(!module_holder.hasOwnProperty(module.name)) {
                     module_holder[module.name] = module;
                 }

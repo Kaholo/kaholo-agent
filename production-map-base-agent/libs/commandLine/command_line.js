@@ -1,7 +1,7 @@
 var exec = require('child_process').exec;
 var q = require('q');
 
-exports.execute = function(action) {
+function executeCMD(action){
 	var deferred = q.defer();
 	console.log("Got Task dedicated agent");
 	console.log(action);
@@ -35,6 +35,12 @@ exports.execute = function(action) {
 		 }
 	);
 	return deferred.promise;
-};
+}
+
+exports.execute = executeCMD;
+
+exports.executeFile = executeCMD;
+
+exports.remoteCommandExecute = executeCMD;
 
 exports.name = "CommandLine";
