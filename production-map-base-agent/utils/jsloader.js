@@ -8,7 +8,12 @@ function endsWith(str, suffix) {
 }
 
 function LoadModules(path) {
+    var deferred = q.defer();
     fs.lstat(path, function(err, stat) {
+        if(err){
+            console.log(err);
+            return deferred.reject(err);
+        }
         if (stat.isDirectory()) {
             // we have a directory: do a tree walk
             fs.readdir(path, function(err, files) {
@@ -22,14 +27,14 @@ function LoadModules(path) {
             // we have a file: load it
             console.log("loading file");
             if(!endsWith(path, '.js')) {
-                return;
+                return deferred.reject("not js file");
             }
             try {
                 var module = require(path);
                 console.log(path);
                 if(!module.name){
                     console.log("no name exported in module");
-                    return;
+                    return deferred.reject("no name exported in module");
                 }
                 if(!module_holder.hasOwnProperty(module.name)) {
                     module_holder[module.name] = module;
@@ -37,9 +42,16 @@ function LoadModules(path) {
             }catch(e) {
                 // statements
                 console.log(e);
+                return deferred.reject(e);
             }
+            return deferred.resolve("success");
         }
     });
+    setTimeout(function () {
+      console.log('Loaded modules');
+      console.log(JSON.stringify(module_holder));
+    }, 2000);
+    return deferred.promise;
 }
 
 function runModuleFunction(moduleName, actionName, paramsJson) {

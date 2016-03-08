@@ -3,9 +3,10 @@ var router = express.Router();
 var moduleLoader = require('../utils/jsloader.js');
 var request = require('request');
 var multer = require('multer');
-var fs = require('os');
+var fs = require('fs');
 var unzip = require('unzip');
 var path_module = require('path');
+var exec = require('child_process').exec;
 
 /* GET home page. */
 router.post('/task/register', function(req, res, next) {
@@ -56,50 +57,41 @@ router.post('/task/register', function(req, res, next) {
 	}
 });
 
-var storage = multer.diskStorage({ //multers disk storage settings
-    destination: function (req, file, cb) {
-        cb(null, './uploads/')
-    },
-    filename: function (req, file, cb) {
-        var datetimestamp = Date.now();
-        cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1])
-    }
-});
-
-var upload = multer({ //multer settings
-    storage: storage
-}).single('file');
+router.use(multer({ dest: './uploads/'}).single('file'));
 
 /** API path that will upload the files */
-router.post('/registerAgent', function(req, res) {
-    upload(req,res,function(err, filename){
-        if(err){
-            res.json({ersror_code:1,err_desc:err});
-            return;
-        }
-        console.log(filename);
-        fs.createReadStream('./uploads/' + filename)
-            .pipe(unzip.Parse())
-            .on('entry', function (entry) {
-                var fileName = entry.path;
-                var type = entry.type; // 'Directory' or 'File'
-                var size = entry.size;
-                if (fileName !== "config.json") {
-                    entry.pipe(fs.createWriteStream('./libs/' + filename));
-                } else {
-                    entry.autodrain();
-                }
-            }).then(function(err){
-            	var DIR = path_module.join(__dirname, 'libs', filename);
-				console.log('Loading modules...');
-				LoadModules(DIR); // Load initial modules
-				setTimeout(function () {
-				  console.log('Loaded modules');
-				  console.log(JSON.stringify(module_holder));
-				}, 2000);
-        		res.json({error_code:0,err_desc:null});
-            });
-    })
+router.post('/registeragent', function(req, res) {
+	console.log(req.file);
+	var filename = req.file.originalname.split('.')[0];
+	if (!fs.existsSync('./libs/' + filename)){
+	    fs.mkdirSync('./libs/' + filename);
+	}
+	fs.createReadStream(req.file.path)
+	    .pipe(unzip.Parse())
+	    .on('entry', function (entry) {
+	        var fileName = entry.path;
+	        var type = entry.type; // 'Directory' or 'File'
+	        var size = entry.size;
+	        if(fileName !== "config.json"){
+	        	entry.pipe(fs.createWriteStream('./libs/' + filename + "/" + fileName));
+	        }
+	        else {
+	            entry.autodrain();
+	        }
+	    }).on('close', function(data){
+	    	console.log('end data');
+	    	var cmd = 'npm install';
+				exec(cmd, function(error, stdout, stderr) {
+				  console.log(stdout);
+				  console.log(stderr);
+				  console.log(error);
+				  moduleLoader.loadModules('./libs/' + filename ).then(function(err){
+							console.log(err);
+		    				console.log("ASdfasdfasdf");
+		    				res.json({error_code:0,err_desc:null});
+					}); // Load initial modules
+				});
+	    });
 
 });
 
