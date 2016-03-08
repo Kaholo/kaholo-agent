@@ -6,7 +6,7 @@
 var fs = require('fs');
 var q = require('q');
 
-exports = {
+module.exports = {
     name: "Text Editor",
     /**
      * creates new file at specific path with content
@@ -15,9 +15,7 @@ exports = {
      * @param content the new file content
      *
      */
-    createNewFileWithContent: function(action) {
-		var path = action.params.path, 
-			content = action.params.content;
+    createNewFileWithContent: function(path, content) {
         var deferred = q.defer();
         fs.writeFile(path, content, function(err) {
             if(err) {
@@ -37,9 +35,7 @@ exports = {
      * @param textToAdd text to append
      *
      */
-    appendToFile: function(action){
-		var path = action.params.path, 
-			content = action.params.content;
+    appendToFile: function(path, content){
         var deferred = q.defer();
         fs.appendFile(path, content, function(err) {
             if(err) {
@@ -59,9 +55,7 @@ exports = {
      * @param regex
      * @returns boolean value indicating if the file contains a string that matches this regex
      */
-    searchInFile: function(action){
-		var path = action.params.path, 
-			regex = action.params.regex;
+    searchInFile: function(path, regex){
         var deferred = q.defer();
         fs.readFile(path, 'utf8', function (err,data) {
             if (err) {
@@ -81,10 +75,7 @@ exports = {
      * @param newStr
      * @returns {*}
      */
-    searchAndReplace: function(action){
-		var path = action.params.path, 
-			newStr = action.params.newStr, 
-			regex = action.params.regex;
+    searchAndReplace: function(path, regex, newStr){
         var deferred = q.defer();
         fs.readFile(path, 'utf-8', function(err, data){
             if (err) {

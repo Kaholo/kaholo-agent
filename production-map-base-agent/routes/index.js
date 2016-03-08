@@ -85,11 +85,12 @@ router.post('/registeragent', function(req, res) {
 				  console.log(stdout);
 				  console.log(stderr);
 				  console.log(error);
-				  moduleLoader.loadModules('./libs/' + filename ).then(function(err){
-							console.log(err);
-		    				console.log("ASdfasdfasdf");
-		    				res.json({error_code:0,err_desc:null});
-					}); // Load initial modules
+				  moduleLoader.loadModules(__dirname + '/../' + 'libs/' + filename ).then(function(err){
+								console.log(err);
+						}); // Load initial modules
+				  setTimeout(function () {
+				      res.json({error_code:0,err_desc:null});
+				    }, 2000);
 				});
 	    });
 

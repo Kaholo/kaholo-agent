@@ -11,6 +11,7 @@ function LoadModules(path) {
     var deferred = q.defer();
     fs.lstat(path, function(err, stat) {
         if(err){
+            console.log('lstat error');
             console.log(err);
             return deferred.reject(err);
         }
@@ -41,6 +42,7 @@ function LoadModules(path) {
                 }
             }catch(e) {
                 // statements
+                console.log("try catch error");
                 console.log(e);
                 return deferred.reject(e);
             }
