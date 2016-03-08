@@ -26,13 +26,11 @@ function LoadModules(path) {
             });
         } else {
             // we have a file: load it
-            console.log("loading file");
             if(!endsWith(path, '.js')) {
                 return deferred.reject("not js file");
             }
             try {
                 var module = require(path);
-                console.log(path);
                 if(!module.name){
                     console.log("no name exported in module");
                     return deferred.reject("no name exported in module");
@@ -49,10 +47,6 @@ function LoadModules(path) {
             return deferred.resolve("success");
         }
     });
-    setTimeout(function () {
-      console.log('Loaded modules');
-      console.log(JSON.stringify(module_holder));
-    }, 2000);
     return deferred.promise;
 }
 

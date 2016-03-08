@@ -6,8 +6,6 @@
 var fs = require('fs');
 var q = require('q');
 
-exports = {
-    name: "Text Editor",
     /**
      * creates new file at specific path with content
      *
@@ -15,9 +13,9 @@ exports = {
      * @param content the new file content
      *
      */
-    createNewFileWithContent: function(action) {
-        var path = action.params.path, 
-            content = action.params.content;
+exports.createNewFileWithContent = function(action) {
+        var path = action.params.path,
+            content = action.params.text;
         var deferred = q.defer();
         fs.writeFile(path, content, function(err) {
             if(err) {
@@ -29,7 +27,7 @@ exports = {
             }
         });
         return deferred.promise;
-    },
+    };
     /**
      * appends text to the end of a file
      *
@@ -37,9 +35,9 @@ exports = {
      * @param textToAdd text to append
      *
      */
-    appendToFile: function(action){
+exports.appendToFile = function(action){
         var path = action.params.path, 
-            content = action.params.content;
+            content = action.params.text;
         var deferred = q.defer();
         fs.appendFile(path, content, function(err) {
             if(err) {
@@ -51,7 +49,7 @@ exports = {
             }
         });
         return deferred.promise;
-    },
+    };
     /**
      * search a regular expression in file
      *
@@ -59,7 +57,7 @@ exports = {
      * @param regex
      * @returns boolean value indicating if the file contains a string that matches this regex
      */
-    searchInFile: function(action){
+exports.searchInFile = function(action){
         var path = action.params.path, 
             regex = action.params.regex;
         var deferred = q.defer();
@@ -72,7 +70,7 @@ exports = {
             return deferred.resolve({status: res ? 1 : -1});
         });
         return deferred.promise;
-    },
+    };
     /**
      * search and replace in file
      *
@@ -81,9 +79,9 @@ exports = {
      * @param newStr
      * @returns {*}
      */
-    searchAndReplace: function(action){
-        var path = action.params.path, 
-            newStr = action.params.newStr, 
+exports.searchAndReplace = function(action){
+        var path = action.params.path,
+            newStr = action.params.newStr,
             regex = action.params.regex;
         var deferred = q.defer();
         fs.readFile(path, 'utf-8', function(err, data){
@@ -100,4 +98,4 @@ exports = {
         });
         return deferred.promise;
     }
-}
+exports.name = "Text Editor"
