@@ -7,17 +7,36 @@ var fs = require('fs');
 var unzip = require('unzip');
 var path_module = require('path');
 var exec = require('child_process').exec;
+var baseAgentKey = "";
+
+fs.readFile('./keys/key.pm', 'utf8', function (err,data) {
+  if (err) {
+    console.log(err);
+  }
+  baseAgentKey = data;
+});
 
 /* GET home page. */
 router.post('/task/register', function(req, res, next) {
 	var execution_result = {msg: "registered task!"};
-	var action = req.body;
+	var action = req.body.action;
+	var key = req.body.key;
 	console.log("Got Task");
 	console.log(action);
 	console.log('action server --- > ' + action.server);
 	console.log('action method --- > ' + action.method);
 	console.log('action type --- > ' + action.server.type);
 	console.log('action name --- > ' + action.method.name);
+	if(!key){
+		console.log("No key provided");
+		res.status(500);
+		return res.send(JSON.stringify({error: "No key provided to baseAgent"}));
+	}
+	if(key != baseAgentKey) {
+		console.log("Wrong Key provided - no permissions");
+		res.status(500);
+		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
+	}
 	if(!action.server.url) {
 		moduleLoader.runModuleFunction(action.server.type, action.method.name, action).then(
 			function(result){
