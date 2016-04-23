@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "scripts": {
     "start": "forever start ./bin/www 8090",
-    "debug": "DEBUG=production-map-base-agent:* node ./bin/www 8090"
+    "debug": "node ./bin/www 8090"
   },
   "dependencies": {
     "aws-sdk": "^2.2.41",

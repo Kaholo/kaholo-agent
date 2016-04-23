@@ -34,6 +34,8 @@ router.post('/task/register', function(req, res, next) {
 	}
 	if(key != baseAgentKey) {
 		console.log("Wrong Key provided - no permissions");
+		console.log(key);
+		console.log(baseAgentKey);
 		res.status(500);
 		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
 	}
@@ -99,7 +101,7 @@ router.post('/registeragent', function(req, res) {
 	        }
 	    }).on('close', function(data){
 	    	console.log('end data');
-	    	var cmd = 'npm install';
+	    	var cmd = 'cd ' + __dirname + '/../' + 'libs/' + filename + '&&' + ' npm install ' + " && cd " + __dirname;
 				exec(cmd, function(error, stdout, stderr) {
 				  console.log(stdout);
 				  console.log(stderr);
