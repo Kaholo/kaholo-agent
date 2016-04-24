@@ -23,8 +23,8 @@ router.post('/task/register', function(req, res, next) {
 	var key = req.body.key;
 	console.log("Got Task");
 	console.log(action);
-	console.log('action server --- > ' + action.server);
-	console.log('action method --- > ' + action.method);
+	console.log('action server --- > ' + JSON.stringify(action.server, null, 2));
+	console.log('action method --- > ' + JSON.stringify(action.method, null, 2));
 	console.log('action type --- > ' + action.server.type);
 	console.log('action name --- > ' + action.method.name);
 	if(!key){
@@ -40,6 +40,7 @@ router.post('/task/register', function(req, res, next) {
 		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
 	}
 	if(!action.server.url) {
+		console.log("Running local agent");
 		moduleLoader.runModuleFunction(action.server.type, action.method.name, action).then(
 			function(result){
 				if(result.hasOwnProperty('error')) {

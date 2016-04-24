@@ -45,10 +45,11 @@ exports.executeFile = executeCMD;
 exports.remoteCommandExecute = executeCMD;
 
 exports.executeMultiple = function(action) {
+	console.log("Starting execution multiple cli");
+	console.log("action --- > %s", JSON.stringify(action, null, 2));
 	var deffered = q.defer();
 	var command = action.params.command;
-	var paramsList = JSON.parse(action.params.paramsList);
-	console.log("Starting execution");
+	var paramsList = JSON.parse(action.params.paramsList.value);
 	async.map(paramsList, function(params, callback) {
 		var execString = command + " ";
 		for (var i = 0; i < params.length; i++) {

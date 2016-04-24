@@ -55,6 +55,7 @@ function runModuleFunction(moduleName, actionName, paramsJson) {
     if(module_holder.hasOwnProperty(moduleName)) {
         var module = module_holder[moduleName];
         if(module.hasOwnProperty(actionName)) {
+            console.log("run action %s %s", moduleName, actionName);
             return module_holder[moduleName][actionName](paramsJson);
         }
         console.log('nos such action');
