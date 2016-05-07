@@ -6,6 +6,7 @@
     "debug": "node ./bin/www 8090"
   },
   "dependencies": {
+    "async": "^2.0.0-rc.4",
     "aws-sdk": "^2.2.41",
     "body-parser": "~1.13.2",
     "cookie-parser": "~1.3.5",
