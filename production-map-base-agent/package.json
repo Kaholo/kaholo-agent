@@ -2,8 +2,8 @@
   "name": "production-map-base-agent",
   "version": "0.1.2",
   "scripts": {
-    "start": "forever start ./bin/www 8090",
-    "debug": "node ./bin/www 8090"
+    "start": "forever start ./bin/www 8080",
+    "debug": "node ./bin/www 8080"
   },
   "dependencies": {
     "async": "^2.0.0-rc.4",
