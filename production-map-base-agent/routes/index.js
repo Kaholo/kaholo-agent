@@ -1,4 +1,6 @@
 var express = require('express');
+var diskspace = require('diskspace');
+var os = require('os');
 var router = express.Router();
 var moduleLoader = require('../utils/jsloader.js');
 var request = require('request');
@@ -141,8 +143,12 @@ router.post('/isalive', function(req, res, next) {
 		res.status(500);
 		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to install library"}));
 	}
-	res.status(200);
-	return res.send(JSON.stringify({res: "Success"}));
+
+	diskspace.check('C', function (err, total, free, status)
+	{
+		res.status(200);
+		return res.send(JSON.stringify({res: "Success", info: {hostname: os.hostname(), arch: process.platform, freeSpace: free}}));
+	});
 });
 
 module.exports = router;
