@@ -4,6 +4,14 @@ var mkdirp = require('mkdirp');
 var auth = require('./auth');
 var request = require('superagent');
 var os = require("os");
+var ip = require('ip');
+var path = require('path');
+
+var CONFIGURATION_PATH = path.join(__dirname, "/../conf/baseagent.json");
+var KEYSDIR = path.join(__dirname, "../keys");
+var KEYDIR = path.join(__dirname, "../keys/key.pm");
+var port = 3000;
+var baseUrl = "http://" + ip.address() + ":" + port;
 
 function sendKeyToServer(username, password, userKey, server, baseUrl){
 	console.log("Registering agent at the server");
@@ -36,29 +44,70 @@ function sendKeyToServer(username, password, userKey, server, baseUrl){
 		});
 }
 
-if(process.argv.length < 6){
-	console.log("Not enough parameters try:");
-	console.log("node register `BASE-URL` `USERNAME` `PASSWORD` `SERVERURL`");
-	return;
-}
-
 function randomValueHex (len) {
-    return crypto.randomBytes(Math.ceil(len/2))
-        .toString('hex') // convert to hexadecimal format
-        .slice(0,len);   // return required number of characters
+	return crypto.randomBytes(Math.ceil(len/2))
+		.toString('hex') // convert to hexadecimal format
+		.slice(0,len);   // return required number of characters
 }
 
-var keyValue = randomValueHex(128);
+exports.registerAgent = function(cb) {
+	fs.readFile(CONFIGURATION_PATH, 'utf8', function (err,data) {
+		if (err) {
+			return console.log(err);
+		}
+		var configData = JSON.parse(data);
+		var keyValue = randomValueHex(128);
 
-mkdirp('../keys', function(err) {
-    if(err){
-    	console.log(err);
-    }
-    fs.writeFile("../keys/key.pm", keyValue, function(err) {
-	    if(err) {
-	        return console.log(err);
-	    }
-	    console.log("Key was written to `keys/key.pm`");
-	    sendKeyToServer(process.argv[3], process.argv[4], keyValue, process.argv[5], process.argv[2]);
+		mkdirp(KEYSDIR, function(err) {
+			if(err){
+				console.log(err);
+			}
+			fs.writeFile(KEYDIR, keyValue, function(err) {
+				if(err) {
+					return console.log(err);
+				}
+				console.log("Key was written to `keys/key.pm`");
+				sendKeyToServer(configData.username, configData.password, keyValue, configData.serverUrl, baseUrl);
+				cb(keyValue);
+			});
+		});
 	});
-});
+};
+
+exports.updateAgent = function(key) {
+	fs.readFile(CONFIGURATION_PATH, 'utf8', function (err,data) {
+		if (err) {
+			return console.log(err);
+		}
+		var configData = JSON.parse(data);
+		sendKeyToServer(configData.username, configData.password, key, configData.serverUrl, baseUrl);
+	});
+};
+
+exports.registerCLI = function() {
+	if(process.argv.length < 5){
+		console.log("Not enough parameters try:");
+		console.log("node register `USERNAME` `PASSWORD` `SERVERURL`");
+		return;
+	}
+
+	var keyValue = randomValueHex(128);
+
+	mkdirp(KEYSDIR, function(err) {
+		if(err){
+			console.log(err);
+		}
+		fs.writeFile(KEYDIR, keyValue, function(err) {
+			if(err) {
+				return console.log(err);
+			}
+			console.log("Key was written to `keys/key.pm`");
+			sendKeyToServer(process.argv[2], process.argv[3], keyValue, process.argv[4], baseUrl);
+		});
+	});
+};
+
+exports.setPort = function(sport) {
+	port = sport;
+	baseUrl = "http://" + ip.address() + ":"+sport;
+};

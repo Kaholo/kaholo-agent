@@ -7,13 +7,21 @@ var fs = require('fs');
 var unzip = require('unzip');
 var path_module = require('path');
 var exec = require('child_process').exec;
+var pmRegister = require('../utils/register');
 var baseAgentKey = "";
+var path = require('path');
+var KEYDIR = path.join(__dirname, "../keys/key.pm");
 
-fs.readFile('./keys/key.pm', 'utf8', function (err,data) {
+fs.readFile(KEYDIR, 'utf8', function (err,data) {
   if (err) {
-    console.log(err);
+	  pmRegister.registerAgent(function(key){
+		  baseAgentKey = key;
+	  });
   }
-  baseAgentKey = data;
+  else{
+	  baseAgentKey = data;
+	  pmRegister.updateAgent(baseAgentKey);
+  }
 });
 
 /* GET home page. */
@@ -116,6 +124,25 @@ router.post('/registeragent', function(req, res) {
 				});
 	    });
 
+});
+
+router.post('/isalive', function(req, res, next) {
+	console.log("I am in is Alive function");
+	var key = req.body.key;
+	if(!key){
+		console.log("No key provided");
+		res.status(500);
+		return res.send(JSON.stringify({error: "No key provided to baseAgent"}));
+	}
+	if(key != baseAgentKey) {
+		console.log("Wrong Key provided - no permissions");
+		console.log(key);
+		console.log(baseAgentKey);
+		res.status(500);
+		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to install library"}));
+	}
+	res.status(200);
+	return res.send(JSON.stringify({res: "Success"}));
 });
 
 module.exports = router;
