@@ -25,7 +25,7 @@ function sendKeyToServer(username, password, userKey, server, baseUrl){
        	 	agent
 		       .post(server + "/BaseAgent/addAgent")
 		       .withCredentials()
-		       .send({name: os.hostname() + '-' + process.platform , url: baseUrl, key: userKey})
+		       .send({name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", "") , url: baseUrl, key: userKey})
 		       .set('Accept', 'application/json, text/plain, */*')
 		       .set('Content-Type', 'application/json;charset=UTF-8')
 		       .end(function (err, res) {
