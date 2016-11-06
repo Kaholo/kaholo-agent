@@ -1,0 +1,39 @@
+{
+    "type": "MySQL",
+    "imgUrl": "img/agents/MySQL.png",
+    "methods":
+      [
+        {
+          "name": "executeQuery",
+          "viewName": "execute query",
+          "params":
+            [
+              {
+                "name": "queryString",
+                "viewName": "query string",
+                "type": "string"
+              },
+              {
+                "name": "host",
+                "viewName": "hostname",
+                "type": "string"
+              },
+              {
+                "name": "user",
+                "viewName": "user",
+                "type": "string"
+              },
+              {
+                "name": "password",
+                "viewName": "password",
+                "type": "string"
+              },
+              {
+                "name": "db",
+                "viewName": "database",
+                "type": "string"
+              }
+            ]
+        }
+      ]
+}
