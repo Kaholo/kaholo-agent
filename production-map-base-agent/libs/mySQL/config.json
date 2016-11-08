@@ -34,6 +34,38 @@
                 "type": "string"
               }
             ]
+        },
+        {
+          "name": "executeSQLFile",
+          "viewName": "execute sql file",
+          "params":
+            [
+              {
+                "name": "filePath",
+                "viewName": "sql file path",
+                "type": "string"
+              },
+              {
+                "name": "host",
+                "viewName": "hostname",
+                "type": "string"
+              },
+              {
+                "name": "user",
+                "viewName": "user",
+                "type": "string"
+              },
+              {
+                "name": "password",
+                "viewName": "password",
+                "type": "string"
+              },
+              {
+                "name": "db",
+                "viewName": "database",
+                "type": "string"
+              }
+            ]
         }
       ]
 }
