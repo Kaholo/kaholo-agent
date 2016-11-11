@@ -13,24 +13,32 @@ var pmRegister = require('../utils/register');
  */
 
 var port = normalizePort(process.env.PORT || process.argv[2] || '3000');
-app.set('port', port);
 pmRegister.setPort(port);
-
 /**
  * Create HTTP server.
  */
 
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+pmRegister.getConfigData().then(function(confData){
 
-server.listen(port);
-console.log(`Listening on port ${port}`);
-server.on('error', onError);
-server.on('listening', onListening);
 
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+
+  if (confData.baseAgentPort) {
+    port = confData.baseAgentPort;
+  }
+
+  app.set('port', port);
+
+  server.listen(port);
+  console.log(`Listening on port ${port}`);
+  server.on('error', onError);
+  server.on('listening', onListening);
+
+});
 
 /**
  * Normalize a port into a number, string, or false.

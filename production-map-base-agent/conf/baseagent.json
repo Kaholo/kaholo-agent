@@ -1,5 +1,6 @@
 {
     "username": "test",
     "password": "asdfasdf",
-    "serverUrl": "http://localhost:8080"
+    "serverUrl": "http://localhost:8080",
+    "baseAgentAddress": "localhost"
 }

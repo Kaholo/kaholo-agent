@@ -6,12 +6,21 @@ var request = require('superagent');
 var os = require("os");
 var ip = require('ip');
 var path = require('path');
+var publicIp = require('public-ip');
+var q = require('q');
 
 var CONFIGURATION_PATH = path.join(__dirname, "/../conf/baseagent.json");
 var KEYSDIR = path.join(__dirname, "../keys");
 var KEYDIR = path.join(__dirname, "../keys/key.pm");
 var port = 3000;
-var baseUrl = "http://" + ip.address() + ":" + port;
+var ipaddr = ip.address();
+var baseUrl = "http://" + ipaddr + ":" + port;
+
+var getIP = require('external-ip')();
+
+var configData;
+
+
 
 function sendKeyToServer(username, password, userKey, server, baseUrl){
 	console.log("Registering agent at the server");
@@ -22,7 +31,10 @@ function sendKeyToServer(username, password, userKey, server, baseUrl){
 			var res = authRes.res;
 			var agent = authRes.agent;
        	 	console.log("Authentication success " + res.body.username);
-       	 	agent
+			console.log("Listening on " + baseUrl);
+			getConfigData().then(function(data) {
+				console.log(data);
+				agent
 		       .post(server + "/BaseAgent/addAgent")
 		       .withCredentials()
 		       .send({name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", "") , url: baseUrl, key: userKey})
@@ -41,6 +53,7 @@ function sendKeyToServer(username, password, userKey, server, baseUrl){
 				      	console.log("Baseagent installed successfuly.");
 		       	 }
 		       });
+			});
 		});
 }
 
@@ -51,25 +64,19 @@ function randomValueHex (len) {
 }
 
 exports.registerAgent = function(cb) {
-	fs.readFile(CONFIGURATION_PATH, 'utf8', function (err,data) {
-		if (err) {
-			return console.log(err);
-		}
-		var configData = JSON.parse(data);
-		var keyValue = randomValueHex(128);
+	var keyValue = randomValueHex(128);
 
-		mkdirp(KEYSDIR, function(err) {
-			if(err){
-				console.log(err);
+	mkdirp(KEYSDIR, function(err) {
+		if(err){
+			console.log(err);
+		}
+		fs.writeFile(KEYDIR, keyValue, function(err) {
+			if(err) {
+				return console.log(err);
 			}
-			fs.writeFile(KEYDIR, keyValue, function(err) {
-				if(err) {
-					return console.log(err);
-				}
-				console.log("Key was written to `keys/key.pm`");
-				sendKeyToServer(configData.username, configData.password, keyValue, configData.serverUrl, baseUrl);
-				cb(keyValue);
-			});
+			console.log("Key was written to `keys/key.pm`");
+			sendKeyToServer(configData.username, configData.password, keyValue, configData.serverUrl, baseUrl);
+			cb(keyValue);
 		});
 	});
 };
@@ -109,5 +116,45 @@ exports.registerCLI = function() {
 
 exports.setPort = function(sport) {
 	port = sport;
-	baseUrl = "http://" + ip.address() + ":"+sport;
+	baseUrl = "http://" + ipaddr + ":"+sport;
 };
+
+function getConfigData() {
+	var deferred = q.defer();
+	fs.readFile(CONFIGURATION_PATH, 'utf8', function (err, data) {
+			if (err) {
+				return deferred.reject(err);
+			}
+			configData = JSON.parse(data);
+
+			if (configData.baseAgentAddress) {
+				ipaddr = configData.baseAgentAddress;
+				if (configData.baseAgentPort) {
+					port = configData.baseAgentPort;
+				}
+
+				baseUrl = "http://" + ipaddr + ":" + port;
+
+				return deferred.resolve(configData);
+			} else {
+				getIP(function (err, externalIp) {
+					if (err) {
+						ipaddr = ip.address(); // local ip
+					} else {
+						ipaddr = externalIp; // external ip
+					}
+
+					if (configData.baseAgentPort) {
+						port = configData.baseAgentPort;
+					}
+
+					baseUrl = "http://" + ipaddr + ":" + port;
+
+					return deferred.resolve(configData);
+				});
+			}
+	});
+	return deferred.promise;
+}
+
+exports.getConfigData = getConfigData;

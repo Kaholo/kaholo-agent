@@ -1,5 +1,9 @@
 {
     "username": "USERNAME", // the user name to pm server
     "password": "PRODUCTION MAP SERVER PASSWORD", // password to pm server
-    "serverUrl": "PRODUCTION MAP SERVER URL" // pm server url
+    "serverUrl": "PRODUCTION MAP SERVER URL", // pm server url
+
+    // OPTIONAL!!!
+    "baseAgentAddress": "BASE AGENT URL", // the url that will be registerd for the agent at the server
+    "baseAgentPort": "<PORT NUMBER>" // The base agent port number to listen on
 }
