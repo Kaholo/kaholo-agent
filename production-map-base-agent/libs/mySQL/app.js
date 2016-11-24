@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var q = require('q');
 var async = require('async');
 var mysql      = require('mysql');
@@ -59,3 +61,5 @@ exports.executeQuery = executeQuery;
 exports.executeSQLFile = executeSQLFile;
 
 exports.name = "MySQL";
+
+console.log(process.argv);

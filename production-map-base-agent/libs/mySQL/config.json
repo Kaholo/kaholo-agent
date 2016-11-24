@@ -1,6 +1,7 @@
 {
     "type": "MySQL",
     "imgUrl": "img/agents/MySQL.png",
+    "main": "app.js",
     "methods":
       [
         {
