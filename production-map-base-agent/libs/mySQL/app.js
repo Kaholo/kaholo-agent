@@ -5,6 +5,8 @@ var async = require('async');
 var mysql      = require('mysql');
 var fs = require('fs');
 
+var functions = {};
+
 function executeQuery(action){
 	var deferred = q.defer();
 	var connection = mysql.createConnection({
@@ -56,10 +58,14 @@ function executeSQLFile(action){
 	return deferred.promise;
 }
 
-exports.executeQuery = executeQuery;
+functions.executeQuery = executeQuery;
 
-exports.executeSQLFile = executeSQLFile;
+functions.executeSQLFile = executeSQLFile;
 
-exports.name = "MySQL";
+function main(action) {
+	functions[action.method.name].then(function(result) {
+		console.log(result);
+	});
+}
 
-console.log(process.argv);
+main(process.argv[2]);

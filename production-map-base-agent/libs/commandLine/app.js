@@ -4,10 +4,7 @@ var async = require('async');
 
 function executeCMD(action){
 	var deferred = q.defer();
-	console.log("Got Task dedicated agent");
-	console.log(action);
 	var execString = action.method.actionString;
-	console.log(JSON.stringify(action.method.params));
 	for (var i =0; i< action.method.params.length;i++){
 		var param = action.method.params[i].name;
 		if (action.params.hasOwnProperty(param)) {
@@ -17,36 +14,18 @@ function executeCMD(action){
 			execString = execString.replace(param, '');
 		}
 	}
-	console.log(execString);
 	exec(execString,
 		 function(error, stdout, stderr){
-		 	console.log('--- cli output ---');
-		 	console.log(stdout);
-		 	console.log('--- cli output ---');
-		 	console.log('--- error output ---');
-		 	console.log(error)
-		 	console.log('--- error output ---');
-		 	console.log('--- stderr output ---');
-		 	console.log(stderr)
-		 	console.log('--- stderr output ---');
 			if(error){
-				return deferred.resolve({"error": stderr});
+				return deferred.resolve(stderr);
 			}
-			return deferred.resolve({"res": stdout});
+			return deferred.resolve(stdout);
 		 }
 	);
 	return deferred.promise;
 }
 
-exports.execute = executeCMD;
-
-exports.executeFile = executeCMD;
-
-exports.remoteCommandExecute = executeCMD;
-
-exports.executeMultiple = function(action) {
-	console.log("Starting execution multiple cli");
-	console.log("action --- > %s", JSON.stringify(action, null, 2));
+function executeMultiple(action) {
 	var deffered = q.defer();
 	var command = action.params.command;
 	var paramsList = JSON.parse(action.params.paramsList.value);
@@ -57,24 +36,15 @@ exports.executeMultiple = function(action) {
 		}
 		exec(execString,
 			 function(error, stdout, stderr){
-			 	console.log('--- cli output ---');
-			 	console.log(stdout);
-			 	console.log('--- cli output ---');
-			 	console.log('--- error output ---');
-			 	console.log(error)
-			 	console.log('--- error output ---');
-			 	console.log('--- stderr output ---');
-			 	console.log(stderr)
-			 	console.log('--- stderr output ---');
 				if(error){
-					return callback(null, {"error": stderr});
+					return callback(null, stderr);
 				}
-				return callback(null, {"res": stdout});
+				return callback(null, stdout);
 			 }
 		);
 	}, function(err, results){
 		if(err){
-			return deffered.resolve({"error": err});
+			return deffered.resolve(err);
 		}
 		var res = "Results:\n";
 		for (var i = 0; i < results.length; i++) {
@@ -93,4 +63,23 @@ exports.executeMultiple = function(action) {
 	return deffered.promise;
 }
 
-exports.name = "CommandLine";
+var functions = {
+	execute: executeCMD,
+	executeFile: executeCMD,
+	remoteCommandExecute: executeCMD,
+	executeMultiple: executeMultiple
+};
+
+function main(argv) {
+	if (argv.length < 3) {
+		console.log('{err: "not enough parameters"}');
+		process.exit(-1);
+	}
+	var action = JSON.parse(argv[2]);
+	functions[action.method.name](action).then(function(res) {
+		console.log(res);
+		process.exit(0);
+	});
+}
+
+main(process.argv);

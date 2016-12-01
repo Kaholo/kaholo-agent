@@ -1,0 +1,121 @@
+{
+    "type": "CommandLine",
+    "execProggram": "node",
+    "main": "app.js",
+    "methods":
+      [
+        {
+          "name": "execute",
+          "viewName": "execute command",
+          "params":
+            [
+              {
+                "name": "COMMANDS",
+                "viewName": "command",
+                "type": "string"
+              }
+            ],
+          "actionString": "COMMANDS"
+        },
+        {
+          "name": "execute commands",
+          "viewName": "execute multiple commands",
+          "params":
+            [
+              {
+                "name": "COMMANDS",
+                "viewName": "command",
+                "type": "text"
+              }
+            ],
+          "actionString": "COMMANDS"
+        },
+        {
+          "name": "executeFile",
+          "viewName": "execute file",
+          "params":
+            [
+              {
+                "name": "PATH",
+                "viewName": "path for script",
+                "type": "string"
+              }
+            ],
+          "actionString": "PATH"
+        },
+        {
+          "name": "remoteCommandExecute",
+          "viewName": "remote command execution",
+          "params":
+            [
+              {
+                "name": "KEY_PATH",
+                "viewName": "key path",
+                "type": "string"
+              },
+              {
+                "name": "REMOTE_USER",
+                "viewName": "remote user",
+                "type": "string"
+              },
+              {
+                "name": "REMOTE_ADDRESS",
+                "viewName": "remote address",
+                "type": "string"
+              },
+              {
+                "name": "COMMANDS",
+                "viewName": "command",
+                "type": "string"
+              }
+            ],
+          "actionString": "ssh -i KEY_PATH REMOTE_USER@REMOTE_ADDRESS COMMANDS"
+        },
+        {
+          "name": "remoteScriptExecution",
+          "viewName": "remote script execution",
+          "params":
+            [
+              {
+                "name": "KEY_PATH",
+                "viewName": "key path",
+                "type": "string"
+              },
+              {
+                "name": "REMOTE_USER",
+                "viewName": "remote user",
+                "type": "string"
+              },
+              {
+                "name": "REMOTE_ADDRESS",
+                "viewName": "remote address",
+                "type": "string"
+              },
+              {
+                "name": "SCRIPT_PATH",
+                "viewName": "script path on server",
+                "type": "string"
+              }
+            ],
+          "actionString": "ssh -i KEY_PATH REMOTE_USER@REMOTE_ADDRESS 'bash -s' < SCRIPT_PATH"
+        },
+        {
+          "name": "executeMultiple",
+          "viewName": "execute command multiple times",
+          "params":
+          [
+              {
+                "name": "command",
+                "viewName": "command",
+                "type": "string"
+              },
+              {
+                "name": "paramsList",
+                "viewName": "list of params(multiple lists of params)",
+                "type": "string"
+              }
+          ]
+        }
+      ],
+      "imgUrl": "images/controls/CommandLine.png"
+}

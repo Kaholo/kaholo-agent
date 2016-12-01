@@ -2,14 +2,14 @@ var fs = require('fs');
 var path_module = require('path');
 var q = require('q');
 var module_holder = {};
-var exec = require('child_process').exec;
+var child_process = require('child_process');
 var _ = require('lodash');
 
 function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
-function LoadModules(path) {
+function LoadModules(path, parentDir) {
     var deferred = q.defer();
     fs.lstat(path, function(err, stat) {
         if(err){
@@ -23,7 +23,7 @@ function LoadModules(path) {
                 var f, l = files.length;
                 for (var i = 0; i < l; i++) {
                     f = path_module.join(path, files[i]);
-                    LoadModules(f);
+                    LoadModules(f, path);
                 }
             });
         } else {
@@ -38,6 +38,7 @@ function LoadModules(path) {
                     return deferred.reject("no type exported in module");
                 }
                 if(!module_holder.hasOwnProperty(module.type)) {
+                    module.main = path_module.join(parentDir, module.main);
                     module_holder[module.type] = module;
                 }
             }catch(e) {
@@ -55,18 +56,26 @@ function LoadModules(path) {
 function runModuleFunction(moduleType, methodName, paramsJson) {
     var deffered = q.defer();
     if(module_holder.hasOwnProperty(moduleType)) {
-        var module = module_holder[moduleType];
-        var method = _.find(module_holder[moduleType].methods, { 'name': methodName });
+        var currentModule = module_holder[moduleType];
+        var method = _.find(currentModule.methods, { 'name': methodName });
         if(method) {
-            console.log("run action %s %s", moduleType, methodName);
-            exec(module_holder[moduleType].main + " " + JSON.stringify(paramsJson) ,
-                function(error, stdout, stderr){
-                    if(error){
-                        return deffered.resolve({"error": stderr});
-                    }
-                    return deffered.resolve({"res": stdout});
+            var workerProcess = child_process.spawn(currentModule.execProggram, [currentModule.main, JSON.stringify(paramsJson)]);
+            var workerResult = "";
+            workerProcess.stdout.on('data', function (data) {
+                workerResult += data;
+            });
+
+            workerProcess.stderr.on('data', function (data) {
+                 workerResult += data;
+            });
+
+            workerProcess.on('close', function (code) {
+                if (code < 0) {
+                    return deffered.resolve({"error": workerResult});
+                } else {
+                    return deffered.resolve({"res": workerResult});
                 }
-            );
+            });
         } else {
             console.log('nos such action');
             deffered.resolve({error: 'no such action'});
@@ -81,7 +90,7 @@ function runModuleFunction(moduleType, methodName, paramsJson) {
 
 var DIR = path_module.join(__dirname, '../', 'libs');
 console.log('Loading modules...');
-LoadModules(DIR); // Load initial modules
+LoadModules(DIR, null); // Load initial modules
 setTimeout(function () {
   console.log('Loaded modules');
   console.log(JSON.stringify(module_holder));

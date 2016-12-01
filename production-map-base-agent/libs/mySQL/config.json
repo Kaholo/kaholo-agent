@@ -1,7 +1,8 @@
 {
     "type": "MySQL",
     "imgUrl": "img/agents/MySQL.png",
-    "main": "app.js",
+    "execProggram": "python",
+    "main": "app.py",
     "methods":
       [
         {
