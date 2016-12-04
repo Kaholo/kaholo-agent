@@ -13,6 +13,7 @@ var pmRegister = require('../utils/register');
 var baseAgentKey = "";
 var path = require('path');
 var KEYDIR = path.join(__dirname, "../keys/key.pm");
+var executions = {};
 
 fs.readFile(KEYDIR, 'utf8', function (err,data) {
   if (err) {
@@ -26,10 +27,36 @@ fs.readFile(KEYDIR, 'utf8', function (err,data) {
   }
 });
 
+router.post('/task/unregister', function(req, res, next) {
+	var execution_result = {msg: "registered task!"};
+	var action = req.body.action;
+	var key = req.body.key;
+	console.log("Got Task");
+	console.log(action);
+	if(!key){
+		console.log("No key provided");
+		res.status(500);
+		return res.send(JSON.stringify({error: "No key provided to baseAgent"}));
+	}
+	if(key != baseAgentKey) {
+		console.log("Wrong Key provided - no permissions");
+		console.log(key);
+		console.log(baseAgentKey);
+		res.status(500);
+		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
+	}
+	try {
+		executions[req.body.map][req.body.action].kill('SIGTERM');
+	} catch (error) {
+		return res.send(JSON.stringify({error: error}));
+	}
+});
+
 /* GET home page. */
 router.post('/task/register', function(req, res, next) {
 	var execution_result = {msg: "registered task!"};
 	var action = req.body.action;
+	var mapId = req.body.mapId;
 	var key = req.body.key;
 	console.log("Got Task");
 	console.log(action);
@@ -51,7 +78,7 @@ router.post('/task/register', function(req, res, next) {
 	}
 	if(!action.server.url) {
 		console.log("Running local agent");
-		moduleLoader.runModuleFunction(action.server.type, action.method.name, action).then(
+		moduleLoader.runModuleFunction(action.server.type, action.method.name, action, mapId, action.id, executions).then(
 			function(result){
 				if(result.hasOwnProperty('error')) {
 					res.status(500);

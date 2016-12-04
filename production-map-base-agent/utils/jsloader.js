@@ -53,13 +53,17 @@ function LoadModules(path, parentDir) {
     return deferred.promise;
 }
 
-function runModuleFunction(moduleType, methodName, paramsJson) {
+function runModuleFunction(moduleType, methodName, paramsJson, mapId, actionId, executions) {
     var deffered = q.defer();
     if(module_holder.hasOwnProperty(moduleType)) {
         var currentModule = module_holder[moduleType];
         var method = _.find(currentModule.methods, { 'name': methodName });
         if(method) {
             var workerProcess = child_process.spawn(currentModule.execProggram, [currentModule.main, JSON.stringify(paramsJson)]);
+            if (!executions[mapId]) {
+                executions[mapId] = {};
+            }
+            executions[mapId][actionId] = workerProcess;
             var workerResult = "";
             workerProcess.stdout.on('data', function (data) {
                 workerResult += data;
