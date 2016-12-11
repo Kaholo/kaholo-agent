@@ -1,10 +1,5 @@
-BASE_URL=$1
-SERVER_URL=$2
-SERVER_USERNAME=$3
-SERVER_PASSWORD=$4
-
 # install node 4.x
-curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 apt-get install -y nodejs
 
 FS = pwd
@@ -24,7 +19,3 @@ cd production-map
 git clone -b develop https://github.com/ProductionMap/production-map-base-agent.git
 cd production-map-base-agent/production-map-base-agent
 npm i
-
-#update server
-cd utils
-node register.js $BASE_URL $SERVER_USERNAME $SERVER_PASSWORD $SERVER_URL
