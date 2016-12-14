@@ -1,0 +1,10 @@
+#!/bin/bash
+# Start the services!
+
+update-rc.d base-agent defaults
+cd /opt/base-agent
+rm -rf node_modules
+npm install
+echo "Starting production map base agent..."
+service base-agent start
+rm -f /tmp/hnc.log /tmp/hnc.err

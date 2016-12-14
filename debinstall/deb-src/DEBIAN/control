@@ -1,0 +1,11 @@
+Package: base-agent
+Version: 0.12
+Section: base
+Priority: optional
+Architecture: amd64
+Installed-Size: SIZE
+Depends:
+Maintainer: Production map team <productioin-map@gmail.com>
+Description: Production map base agent! The installable pm base agent System Service
+ Let's you install a production map base agent as a service,
+ after installation the base agent will run as a background service with respawn.
