@@ -22,15 +22,13 @@ var configData;
 
 
 
-function sendKeyToServer(username, password, userKey, server, baseUrl){
+function sendKeyToServer(userKey, server, baseUrl){
 	console.log("Registering agent at the server");
-	auth.login(username, password, server).fail(function(res){
-			console.log("Authentication Failed User: '" + username+"'");
+	auth.login(server).fail(function(res){
 			return;
 		}).then(function(authRes){
 			var res = authRes.res;
 			var agent = authRes.agent;
-       	 	console.log("Authentication success " + res.body.username);
 			console.log("Listening on " + baseUrl);
 			getConfigData().then(function(data) {
 				console.log(data);
@@ -75,7 +73,7 @@ exports.registerAgent = function(cb) {
 				return console.log(err);
 			}
 			console.log("Key was written to `keys/key.pm`");
-			sendKeyToServer(configData.username, configData.password, keyValue, configData.serverUrl, baseUrl);
+			sendKeyToServer(keyValue, configData.serverUrl, baseUrl);
 			cb(keyValue);
 		});
 	});
@@ -87,14 +85,13 @@ exports.updateAgent = function(key) {
 			return console.log(err);
 		}
 		var configData = JSON.parse(data);
-		sendKeyToServer(configData.username, configData.password, key, configData.serverUrl, baseUrl);
+		sendKeyToServer(key, configData.serverUrl, baseUrl);
 	});
 };
 
 exports.registerCLI = function() {
-	if(process.argv.length < 5){
+	if(process.argv.length < 3){
 		console.log("Not enough parameters try:");
-		console.log("node register `USERNAME` `PASSWORD` `SERVERURL`");
 		return;
 	}
 
