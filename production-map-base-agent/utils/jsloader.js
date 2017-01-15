@@ -57,33 +57,27 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, actionId, 
     var deffered = q.defer();
     if(module_holder.hasOwnProperty(moduleType)) {
         var currentModule = module_holder[moduleType];
-        var method = _.find(currentModule.methods, { 'name': methodName });
-        if(method) {
-            var workerProcess = child_process.spawn(currentModule.execProggram, [currentModule.main, JSON.stringify(paramsJson)]);
-            if (!executions[mapId]) {
-                executions[mapId] = {};
-            }
-            executions[mapId][actionId] = workerProcess;
-            var workerResult = "";
-            workerProcess.stdout.on('data', function (data) {
-                workerResult += data;
-            });
-
-            workerProcess.stderr.on('data', function (data) {
-                 workerResult += data;
-            });
-
-            workerProcess.on('close', function (code) {
-                if (code < 0) {
-                    return deffered.resolve({"error": workerResult});
-                } else {
-                    return deffered.resolve({"res": workerResult});
-                }
-            });
-        } else {
-            console.log('nos such action');
-            deffered.resolve({error: 'no such action'});
+        var workerProcess = child_process.spawn(currentModule.execProggram, [currentModule.main, JSON.stringify(paramsJson)]);
+        if (!executions[mapId]) {
+            executions[mapId] = {};
         }
+        executions[mapId][actionId] = workerProcess;
+        var workerResult = "";
+        workerProcess.stdout.on('data', function (data) {
+            workerResult += data;
+        });
+
+        workerProcess.stderr.on('data', function (data) {
+                workerResult += data;
+        });
+
+        workerProcess.on('close', function (code) {
+            if (code < 0) {
+                return deffered.resolve({"error": workerResult});
+            } else {
+                return deffered.resolve({"res": workerResult});
+            }
+        });
     }
     else{
         console.log('nos such module');
