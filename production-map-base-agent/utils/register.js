@@ -1,7 +1,6 @@
 var crypto = require('crypto');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-var auth = require('./auth');
 var request = require('superagent');
 var os = require("os");
 var ip = require('ip');
@@ -24,35 +23,29 @@ var configData;
 
 function sendKeyToServer(userKey, server, baseUrl){
 	console.log("Registering agent at the server");
-	auth.login(server).fail(function(res){
-			return;
-		}).then(function(authRes){
-			var res = authRes.res;
-			var agent = authRes.agent;
-			console.log("Listening on " + baseUrl);
-			getConfigData().then(function(data) {
-				console.log(data);
-				agent
-		       .post(server + "/BaseAgent/addAgent")
-		       .withCredentials()
-		       .send({name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", "") , url: baseUrl, key: userKey})
-		       .set('Accept', 'application/json, text/plain, */*')
-		       .set('Content-Type', 'application/json;charset=UTF-8')
-		       .end(function (err, res) {
-		       	 if(err){
-		       	 	if(!res){
-			      		console.log(err);
-			       	}
-		       	 	else{
-		       	 		console.log(err + " (" + res.status + ")\n" + res.error);
-		       	 	}
-		       	 }
-		       	 else{
-				      	console.log("Baseagent installed successfuly.");
-		       	 }
-		       });
-			});
+	var agent = request.agent();
+	getConfigData().then(function(data) {
+		console.log(data);
+		agent
+		.post(server + "/BaseAgent/addAgent")
+		.withCredentials()
+		.send({name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", "") , url: baseUrl, key: userKey})
+		.set('Accept', 'application/json, text/plain, */*')
+		.set('Content-Type', 'application/json;charset=UTF-8')
+		.end(function (err, res) {
+			if(err){
+			if(!res){
+				console.log(err);
+			}
+			else{
+				console.log(err + " (" + res.status + ")\n" + res.error);
+			}
+			}
+			else{
+				console.log("Baseagent installed successfuly.");
+			}
 		});
+	});
 }
 
 function randomValueHex (len) {
