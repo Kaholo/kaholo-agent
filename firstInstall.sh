@@ -2,8 +2,6 @@
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 apt-get install -y nodejs
 
-FS = pwd
-
 # install git
 apt-get install -y git
 
@@ -11,9 +9,8 @@ apt-get install -y git
 npm i -g forever grunt-cli
 
 #create pm folder
-cd $FS
-mkdir production-map
-cd production-map
+mkdir -p /var/production-map
+cd /var/production-map
 
 #clone server
 git clone -b develop https://github.com/ProductionMap/production-map-base-agent.git
