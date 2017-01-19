@@ -121,9 +121,9 @@ router.use(multer({ dest: './uploads/'}).single('file'));
 /** API path that will upload the files */
 router.post('/registeragent', function(req, res) {
 	console.log(req.file);
-	var filename = req.file.originalname.split('.')[0];
-	if (!fs.existsSync('./libs/' + filename)){
-	    fs.mkdirSync('./libs/' + filename);
+	var dirName = req.file.originalname.split('.')[0];
+	if (!fs.existsSync('./libs/' + dirName)){
+	    fs.mkdirSync('./libs/' + dirName);
 	}
 	fs.createReadStream(req.file.path)
 	    .pipe(unzip.Parse())
@@ -131,20 +131,15 @@ router.post('/registeragent', function(req, res) {
 	        var fileName = entry.path;
 	        var type = entry.type; // 'Directory' or 'File'
 	        var size = entry.size;
-	        if(fileName !== "config.json"){
-	        	entry.pipe(fs.createWriteStream('./libs/' + filename + "/" + fileName));
-	        }
-	        else {
-	            entry.autodrain();
-	        }
+			entry.pipe(fs.createWriteStream('./libs/' + dirName + "/" + fileName));
 	    }).on('close', function(data){
 	    	console.log('end data');
-	    	var cmd = 'cd ' + __dirname + '/../' + 'libs/' + filename + '&&' + ' npm install ' + " && cd " + __dirname;
+	    	var cmd = 'cd ' + __dirname + '/../' + 'libs/' + dirName + '&&' + ' npm install ' + " && cd " + __dirname;
 				exec(cmd, function(error, stdout, stderr) {
 				  console.log(stdout);
 				  console.log(stderr);
 				  console.log(error);
-				  moduleLoader.loadModules(__dirname + '/../' + 'libs/' + filename ).then(function(err){
+				  moduleLoader.loadModules(__dirname + '/../' + 'libs/' + dirName ).then(function(err){
 								console.log(err);
 						}); // Load initial modules
 				  setTimeout(function () {
