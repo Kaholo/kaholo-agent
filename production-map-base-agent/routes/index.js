@@ -28,10 +28,10 @@ fs.readFile(KEYDIR, 'utf8', function (err,data) {
 });
 
 router.post('/task/unregister', function(req, res, next) {
-	var execution_result = {msg: "registered task!"};
+	var execution_result = {msg: "unregistered task!"};
 	var action = req.body.action;
 	var key = req.body.key;
-	console.log("Got Task");
+	console.log("unregistering task");
 	console.log(action);
 	if(!key){
 		console.log("No key provided");
@@ -46,7 +46,8 @@ router.post('/task/unregister', function(req, res, next) {
 		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
 	}
 	try {
-		executions[req.body.map][req.body.action].kill('SIGTERM');
+		executions[req.body.mapId][req.body.action.name].kill('SIGTERM');
+		return res.send(execution_result);
 	} catch (error) {
 		return res.send(JSON.stringify({error: error}));
 	}
@@ -78,7 +79,7 @@ router.post('/task/register', function(req, res, next) {
 	}
 	if(!action.server.url) {
 		console.log("Running local agent");
-		moduleLoader.runModuleFunction(action.server.type, action.method.name, action, mapId, action.id, executions).then(
+		moduleLoader.runModuleFunction(action.server.type, action.method.name, action, mapId, action.name, executions).then(
 			function(result){
 				if(result.hasOwnProperty('error')) {
 					res.status(500);
