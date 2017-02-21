@@ -13,7 +13,7 @@ var pmRegister = require('../utils/register');
 var baseAgentKey = "";
 var path = require('path');
 var KEYDIR = path.join(__dirname, "../keys/key.pm");
-var executions = {};
+var executionsManager = require('../utils/execution-manager');
 
 fs.readFile(KEYDIR, 'utf8', function (err,data) {
   if (err) {
@@ -46,8 +46,34 @@ router.post('/task/unregister', function(req, res, next) {
 		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
 	}
 	try {
-		executions[req.body.mapId][req.body.action.name].kill('SIGTERM');
+		executionsManager.killAction(req.body.mapId, req.body.action.name);
 		return res.send(execution_result);
+	} catch (error) {
+		return res.send(JSON.stringify({error: error}));
+	}
+});
+
+router.post('/deleteworkspace', function(req, res, next) {
+	var key = req.body.key;
+	var mapId = req.body.mapId;
+	var versionId = req.body.versionId;
+	var executionId = req.body.executionId;
+
+	if(!key){
+		console.log("No key provided");
+		res.status(500);
+		return res.send(JSON.stringify({error: "No key provided to baseAgent"}));
+	}
+	if(key != baseAgentKey) {
+		console.log("Wrong Key provided - no permissions");
+		console.log(key);
+		console.log(baseAgentKey);
+		res.status(500);
+		return res.send(JSON.stringify({error: "Wrong Key provided to baseAgent - no permissions to execute actions"}));
+	}
+	try {
+		executionsManager.deleteExecutionData(mapId, versionId, executionId);
+		return res.send("success");
 	} catch (error) {
 		return res.send(JSON.stringify({error: error}));
 	}
@@ -58,6 +84,8 @@ router.post('/task/register', function(req, res, next) {
 	var execution_result = {msg: "registered task!"};
 	var action = req.body.action;
 	var mapId = req.body.mapId;
+	var versionId = req.body.versionId;
+	var executionId = req.body.executionId;
 	var key = req.body.key;
 	console.log("Got Task");
 	console.log(action);
@@ -79,8 +107,9 @@ router.post('/task/register', function(req, res, next) {
 	}
 	if(!action.server.url) {
 		console.log("Running local agent");
-		moduleLoader.runModuleFunction(action.server.type, action.method.name, action, mapId, action.name, executions).then(
+		moduleLoader.runModuleFunction(action.server.type, action.method.name, action, mapId, versionId, executionId, action.name).then(
 			function(result){
+				executionsManager.actionDone(mapId, action.name);
 				if(result.hasOwnProperty('error')) {
 					res.status(500);
 				    return res.send(JSON.stringify(result));

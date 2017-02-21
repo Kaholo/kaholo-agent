@@ -25,6 +25,7 @@
     "q": "^1.4.1",
     "request": "^2.69.0",
     "serve-favicon": "~2.3.0",
+    "shelljs": "^0.7.6",
     "superagent": "^1.8.3",
     "unzip": "^0.1.11"
   }

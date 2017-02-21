@@ -4,6 +4,7 @@ var q = require('q');
 var module_holder = {};
 var child_process = require('child_process');
 var _ = require('lodash');
+var executionsManager = require('../utils/execution-manager');
 
 function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -53,16 +54,14 @@ function LoadModules(path, parentDir) {
     return deferred.promise;
 }
 
-function runModuleFunction(moduleType, methodName, paramsJson, mapId, actionId, executions) {
+function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId, executionId, actionId) {
     var deffered = q.defer();
     if(module_holder.hasOwnProperty(moduleType)) {
         var currentModule = module_holder[moduleType];
         var workerProcess = child_process.spawn(currentModule.execProggram, [currentModule.main, JSON.stringify(paramsJson)]);
-        if (!executions[mapId]) {
-            executions[mapId] = {};
-        }
-        executions[mapId][actionId] = workerProcess;
         var workerResult = "";
+
+        executionsManager.addMapExecution(mapId, versionId, executionId, actionId, workerProcess);
         workerProcess.stdout.on('data', function (data) {
             workerResult += data;
         });
