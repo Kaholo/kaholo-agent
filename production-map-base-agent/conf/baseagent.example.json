@@ -1,6 +1,4 @@
 {
-    "username": "USERNAME", // the user name to pm server
-    "password": "PRODUCTION MAP SERVER PASSWORD", // password to pm server
     "serverUrl": "PRODUCTION MAP SERVER URL", // pm server url
 
     // OPTIONAL!!!

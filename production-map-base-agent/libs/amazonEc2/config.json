@@ -1,0 +1,5 @@
+{
+    "execProggram": "node",
+    "main": "amazonEC2.js",
+    "type": "AmazonEC2"
+}
