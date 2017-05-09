@@ -1,0 +1,21 @@
+{
+    "type": "python-base",
+    "execProggram": "python",
+    "main": "app.py",
+    "methods":
+      [
+        {
+          "name": "hello",
+          "viewName": "Hello World",
+          "params":
+            [
+              {
+                "name": "NAME",
+                "viewName": "name",
+                "type": "string"
+              }
+            ]
+        }
+      ],
+      "imgUrl": "images/controls/CommandLine.png"
+}
