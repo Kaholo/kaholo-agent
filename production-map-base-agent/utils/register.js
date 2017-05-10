@@ -8,7 +8,7 @@ var path = require('path');
 var publicIp = require('public-ip');
 var q = require('q');
 
-var CONFIGURATION_PATH = path.join(__dirname, "/../conf/baseagent.json");
+var configurationData = require(path.join(__dirname, "/../conf/baseagent.js"));
 var KEYSDIR = path.join(__dirname, "../keys");
 var KEYDIR = path.join(__dirname, "../keys/key.pm");
 var port = 3000;
@@ -34,12 +34,13 @@ function sendKeyToServer(userKey, server, baseUrl){
 		.set('Content-Type', 'application/json;charset=UTF-8')
 		.end(function (err, res) {
 			if(err){
-			if(!res){
-				console.log(err);
-			}
-			else{
-				console.log(err + " (" + res.status + ")\n" + res.error);
-			}
+				if(!res){
+					console.log(err);
+				}
+				else{
+					console.log(err + " (" + res.status + ")\n" + res.error);
+				}
+				exit(); /* close proggram when failed connecting to the server */
 			}
 			else{
 				console.log("Baseagent installed successfuly.");
@@ -73,13 +74,8 @@ exports.registerAgent = function(cb) {
 };
 
 exports.updateAgent = function(key) {
-	fs.readFile(CONFIGURATION_PATH, 'utf8', function (err,data) {
-		if (err) {
-			return console.log(err);
-		}
-		var configData = JSON.parse(data);
-		sendKeyToServer(key, configData.serverUrl, baseUrl);
-	});
+	var configData = configurationData;
+	sendKeyToServer(key, configData.serverUrl, baseUrl);
 };
 
 exports.registerCLI = function() {
@@ -111,39 +107,34 @@ exports.setPort = function(sport) {
 
 function getConfigData() {
 	var deferred = q.defer();
-	fs.readFile(CONFIGURATION_PATH, 'utf8', function (err, data) {
+	configData = configurationData;
+
+	if (configData.baseAgentAddress) {
+		ipaddr = configData.baseAgentAddress;
+		if (configData.baseAgentPort) {
+			port = configData.baseAgentPort;
+		}
+
+		baseUrl = "http://" + ipaddr + ":" + port;
+
+		return deferred.resolve(configData);
+	} else {
+		getIP(function (err, externalIp) {
 			if (err) {
-				return deferred.reject(err);
-			}
-			configData = JSON.parse(data);
-
-			if (configData.baseAgentAddress) {
-				ipaddr = configData.baseAgentAddress;
-				if (configData.baseAgentPort) {
-					port = configData.baseAgentPort;
-				}
-
-				baseUrl = "http://" + ipaddr + ":" + port;
-
-				return deferred.resolve(configData);
+				ipaddr = ip.address(); // local ip
 			} else {
-				getIP(function (err, externalIp) {
-					if (err) {
-						ipaddr = ip.address(); // local ip
-					} else {
-						ipaddr = externalIp; // external ip
-					}
-
-					if (configData.baseAgentPort) {
-						port = configData.baseAgentPort;
-					}
-
-					baseUrl = "http://" + ipaddr + ":" + port;
-
-					return deferred.resolve(configData);
-				});
+				ipaddr = externalIp; // external ip
 			}
-	});
+
+			if (configData.baseAgentPort) {
+				port = configData.baseAgentPort;
+			}
+
+			baseUrl = "http://" + ipaddr + ":" + port;
+
+			return deferred.resolve(configData);
+		});
+	}
 	return deferred.promise;
 }
 
