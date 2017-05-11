@@ -109,11 +109,12 @@ function getConfigData() {
 	var deferred = q.defer();
 	configData = configurationData;
 
+	if (configData.baseAgentPort) {
+		port = configData.baseAgentPort;
+	}
+
 	if (configData.baseAgentAddress) {
 		ipaddr = configData.baseAgentAddress;
-		if (configData.baseAgentPort) {
-			port = configData.baseAgentPort;
-		}
 
 		baseUrl = "http://" + ipaddr + ":" + port;
 
