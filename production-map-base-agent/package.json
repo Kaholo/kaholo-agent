@@ -13,6 +13,7 @@
     "debug": "~2.2.0",
     "diskspace": "^1.0.3",
     "express": "~4.13.1",
+    "express-winston": "^2.4.0",
     "external-ip": "^0.2.4",
     "ip": "^1.1.4",
     "jade": "~1.11.0",
@@ -27,6 +28,7 @@
     "serve-favicon": "~2.3.0",
     "shelljs": "^0.7.6",
     "superagent": "^1.8.3",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "winston": "^2.3.1"
   }
 }
