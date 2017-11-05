@@ -71,7 +71,7 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
         });
 
         workerProcess.on('close', function (code) {
-            if (code <= 0) {
+            if (code > 0) {
                 return deffered.resolve({"error": workerResult});
             } else {
                 return deffered.resolve({"res": workerResult});
