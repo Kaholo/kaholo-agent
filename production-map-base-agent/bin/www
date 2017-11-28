@@ -8,6 +8,8 @@ var app = require('../app');
 var debug = require('debug')('pm-base-agent:server');
 var http = require('http');
 var pmRegister = require('../utils/register');
+var timeout = require('connect-timeout');
+
 /**
  * Get port from environment and store in Express.
  */
@@ -33,6 +35,12 @@ pmRegister.getConfigData().then(function(confData){
 
   app.set('port', port);
 
+  app.use(timeout(Number.MAX_SAFE_INTEGER));
+  app.use(haltOnTimedout);
+
+  function haltOnTimedout(req, res, next){
+    if (!req.timedout) next();
+  }
   server.listen(port);
   console.log(`Listening on port ${port}`);
   server.on('error', onError);
