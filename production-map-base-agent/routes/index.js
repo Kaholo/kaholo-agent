@@ -91,7 +91,7 @@ router.post('/task/register', function(req, res, next) {
 	console.log(action);
 	console.log('action server --- > ' + JSON.stringify(action.server, null, 2));
 	console.log('action method --- > ' + JSON.stringify(action.method, null, 2));
-	console.log('action type --- > ' + action.server.type);
+	console.log('action plugin name --- > ' + action.server.name);
 	console.log('action name --- > ' + action.method.name);
 	if(!key){
 		console.log("No key provided");
@@ -107,7 +107,7 @@ router.post('/task/register', function(req, res, next) {
 	}
 	if(!action.server.url) {
 		console.log("Running local agent");
-		moduleLoader.runModuleFunction(action.server.type, action.method.name, action, mapId, versionId, executionId, action.name).then(
+		moduleLoader.runModuleFunction(action.server.name, action.method.name, action, mapId, versionId, executionId, action.name).then(
 			function(result){
 				executionsManager.actionDone(mapId, action.name);
 				if(result.hasOwnProperty('error')) {

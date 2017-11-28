@@ -14,8 +14,7 @@ function LoadModules(path, parentDir) {
     var deferred = q.defer();
     fs.lstat(path, function(err, stat) {
         if(err){
-            console.log('lstat error');
-            console.log(err);
+            console.log('lstat error', err);
             return deferred.reject(err);
         }
         if (stat.isDirectory()) {
@@ -29,18 +28,18 @@ function LoadModules(path, parentDir) {
             });
         } else {
             // we have a file: load it
-            if(!endsWith(path, path_module.join('/', 'config.json'))) {
+            if(!endsWith(path, path_module.join('config.json'))) {
                 return deferred.reject("not config.json file");
             }
             try {
                 var module = require(path);
-                if(!module.type){
-                    console.log("no type exported in module");
+                if(!module.name){
+                    console.log("no name exported in module");
                     return deferred.reject("no type exported in module");
                 }
-                if(!module_holder.hasOwnProperty(module.type)) {
+                if(!module_holder.hasOwnProperty(module.name)) {
                     module.main = path_module.join(parentDir, module.main);
-                    module_holder[module.type] = module;
+                    module_holder[module.name] = module;
                 }
             }catch(e) {
                 // statements
