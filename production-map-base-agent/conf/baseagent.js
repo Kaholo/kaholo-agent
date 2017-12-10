@@ -1,3 +1,7 @@
+var server = process.env.SERVER_URL || 'localhost';
+var port = process.env.SERVER_PORT || 8080;
+
+
 module.exports = {
-    "serverUrl": "http://localhost:8080"
+    "serverUrl": server + ":" + port
 };
