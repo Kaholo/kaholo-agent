@@ -190,9 +190,16 @@ router.post('/registeragent', function (req, res) {
             if (fileName === 'config.json') {
                 var writer = new streams.WritableStream();
                 entry.pipe(writer);
-                entry.on('readable', function () {
+
+                var body = '';
+
+                entry.on('data', function (chunk) {
+                    body += chunk;
+                });
+
+                entry.on('end', function () {
                     //get the config file and pass it to the installer
-                    var obj = JSON.parse(writer.toString());
+                    var obj = JSON.parse(body);
                     installPlugin(req.file.path, obj).then(function () {
                         console.log("Good");
                         res.status(200);
