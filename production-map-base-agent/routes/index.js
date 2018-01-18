@@ -106,8 +106,7 @@ router.post('/task/register', function (req, res, next) {
         moduleLoader.runModuleFunction(action.plugin.name, action.method.name, action, mapId, versionId, executionId, action.name).then(
             function (result) {
                 executionsManager.actionDone(mapId, action.name);
-                console.log(result);
-                if (result.hasOwnProperty('error')) {
+                if (result.status === 'error') {
                     res.status(500);
                     return res.send(JSON.stringify(result));
                 }

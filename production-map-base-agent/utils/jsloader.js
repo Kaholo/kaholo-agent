@@ -54,33 +54,46 @@ function LoadModules(path, parentDir) {
 }
 
 function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId, executionId, actionId) {
+    var stdout = "";
+    var stderr = "";
+    var result = "";
+
+    function sumResult(err, data) {
+        if (err) {
+            stderr += '\n' + err;
+        } else if (result) {
+            stdout += '\n' + result;
+        }
+        result = data.toString();
+    }
+
     var deffered = q.defer();
     if (module_holder.hasOwnProperty(moduleType)) {
         var currentModule = module_holder[moduleType];
-        console.log(currentModule);
-        console.log(currentModule.execProgram, currentModule.main);
         var workerProcess = child_process.spawn(currentModule.execProgram, [currentModule.main, JSON.stringify(paramsJson)]);
-        var workerResult = "";
+        // var workerResult = "";
 
         executionsManager.addMapExecution(mapId, versionId, executionId, actionId, workerProcess);
         workerProcess.stdout.on('data', function (data) {
-            workerResult += data;
+            sumResult(null, data);
         });
 
         workerProcess.stderr.on('data', function (data) {
-            workerResult += data;
+            sumResult(data);
         });
 
         workerProcess.on('close', function (code) {
-            if (code > 0) {
-                return deffered.resolve({ "error": workerResult });
-            } else {
-                return deffered.resolve({ "res": workerResult });
-            }
+            var res = {
+                stdout: stdout,
+                stderr: stderr,
+                result: result
+            };
+            res.status = code === 0 ? 'success' : 'error';
+            return deffered.resolve(res);
         });
     }
     else {
-        console.log('nos such module');
+        console.log('no such module');
         deffered.resolve({ error: 'no such module' });
     }
     return deffered.promise;
