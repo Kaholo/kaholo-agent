@@ -101,13 +101,12 @@ router.post('/task/register', function (req, res, next) {
         return res.send(JSON.stringify({ error: "Wrong Key provided to baseAgent - no permissions to execute actions" }));
     }
 
-    if (!action.server.url) {
+    if (!action.server || !action.server.url) {
         console.log("Running local agent");
-        moduleLoader.runModuleFunction(action.server.name, action.method.name, action, mapId, versionId, executionId, action.name).then(
+        moduleLoader.runModuleFunction(action.plugin.name, action.method.name, action, mapId, versionId, executionId, action.name).then(
             function (result) {
                 executionsManager.actionDone(mapId, action.name);
-                console.log(result);
-                if (result.hasOwnProperty('error')) {
+                if (result.status === 'error') {
                     res.status(500);
                     return res.send(JSON.stringify(result));
                 }

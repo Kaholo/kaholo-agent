@@ -27,7 +27,7 @@ function sendKeyToServer(userKey, server, baseUrl){
 	getConfigData().then(function(data) {
 		console.log(data);
 		agent
-		.post(server + "/BaseAgent/addAgent")
+		.post("http://" + server + "/api/agents/add")
 		.withCredentials()
 		.send({name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", "") , url: baseUrl, key: userKey})
 		.set('Accept', 'application/json, text/plain, */*')
