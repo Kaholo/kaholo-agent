@@ -27,7 +27,7 @@ function sendKeyToServer(userKey, server, baseUrl){
 	getConfigData().then(function(data) {
 		console.log(data);
 		agent
-		.post(server + "/BaseAgent/addAgent")
+		.post("http://" + server + "/api/agents/add")
 		.withCredentials()
 		.send({name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", "") , url: baseUrl, key: userKey})
 		.set('Accept', 'application/json, text/plain, */*')
@@ -36,10 +36,16 @@ function sendKeyToServer(userKey, server, baseUrl){
 			if(err){
 				if(!res){
 					console.log(err);
+					console.log("Failed connecting to server: " + server);
 				}
 				else{
-					console.log(err + " (" + res.status + ")\n" + res.error);
+					console.log("Failed connecting to server: " + server + " status code: " + res.status + "\n");
 				}
+				console.log(`Possible reasons are:
+								1. Server url is incorrect
+								2. Server is down
+								3. Agent Key is forbidden for use
+									in this case delete the key folder and rerun the application`);
 				exit(); /* close proggram when failed connecting to the server */
 			}
 			else{
