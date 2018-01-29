@@ -109,3 +109,4 @@ setTimeout(function () {
 
 exports.loadModules = LoadModules;
 exports.runModuleFunction = runModuleFunction;
+exports.modules = module_holder;
