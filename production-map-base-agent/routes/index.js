@@ -28,6 +28,15 @@ fs.readFile(KEYDIR, 'utf8', function (err, data) {
     }
 });
 
+
+function packagify(modules) {
+    // returns an object where key's value is the version of the plugin.
+    return Object.keys(moduleLoader.modules).reduce((total, current) => {
+        total[current] = moduleLoader.modules[current].version;
+        return total;
+    }, {});
+}
+
 router.post('/task/unregister', function (req, res, next) {
     var execution_result = { msg: "unregistered task!" };
     var action = req.body.action;
@@ -142,6 +151,16 @@ router.post('/task/register', function (req, res, next) {
     }
 });
 
+router.post('/plugins/list', function (req, res, next) {
+    var key = req.body.key;
+    if (!key || key !== baseAgentKey) {
+        return res.status(500).send('Wrong key or no key');
+    }
+    const modules = packagify(moduleLoader.modules);
+
+    return res.json(modules);
+});
+
 router.use(multer({ dest: './uploads/' }).single('file'));
 
 function installPlugin(filePath, obj) {
@@ -233,7 +252,7 @@ router.post('/isalive', function (req, res, next) {
         res.status(200);
         return res.send(JSON.stringify({
             res: "Success",
-            info: { hostname: os.hostname(), arch: process.platform, freeSpace: free }
+            info: { hostname: os.hostname(), arch: process.platform, freeSpace: free, installed_plugins: packagify(moduleLoader.modules) }
         }));
     });
 });

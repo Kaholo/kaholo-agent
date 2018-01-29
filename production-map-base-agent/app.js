@@ -34,9 +34,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
-const tsFormat = () =
->
-(new Date()).toLocaleTimeString();
+const tsFormat = () => (new Date()).toLocaleTimeString();
 
 app.use(expressWinston.logger({
     transports: [
