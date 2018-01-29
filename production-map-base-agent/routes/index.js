@@ -143,9 +143,8 @@ router.post('/task/register', function (req, res, next) {
 });
 
 router.post('/plugins/list', function (req, res, next) {
-    console.log(req.body);
     var key = req.body.key;
-    if (!key || key !== moduleLoader.baseAgentKey) {
+    if (!key || key !== baseAgentKey) {
         return res.status(500).send('Wrong key or no key');
     }
     const modules = Object.keys(moduleLoader.modules).reduce((total, current) => {
