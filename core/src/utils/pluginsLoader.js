@@ -52,5 +52,6 @@ function loadPluginModule(pluginPath, parentDir) {
 
 
 module.exports = {
-    loadPluginModule: loadPluginModule
+    loadPluginModule: loadPluginModule,
+    module_holder: module_holder
 };

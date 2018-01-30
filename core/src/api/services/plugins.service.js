@@ -79,6 +79,5 @@ module.exports = {
             });
         });
 
-    },
-    modules: modules_holder
+    }
 };
