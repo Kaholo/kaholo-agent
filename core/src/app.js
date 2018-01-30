@@ -8,11 +8,12 @@ const winston = require('winston');
 const expressWinston = require('express-winston');
 const parseArgs = require('minimist')(process.argv.slice(2));
 
-const keyPath = path.join(path.dirname(path.dirname(__dirname)), 'config', 'key.pm');
+const environment = require("./environment/environment");
 
-if (!fs.existsSync(path)) {
+
+if (!fs.existsSync(environment.keyPath)) {
     const createKey = require("./utils/createKey");
-    createKey.generateKey(keyPath);
+    createKey.generateKey(environment.keyPath);
 }
 
 const app = express();
