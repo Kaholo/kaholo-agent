@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/ProductionMap/PM-agent/issues"
   },
-  "homepage": "https://github.com/ProductionMap/PM-agent#readme"
+  "homepage": "https://github.com/ProductionMap/PM-agent#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "express-winston": "^2.4.0",
+    "minimist": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "winston": "^2.4.0"
+  }
 }
