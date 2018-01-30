@@ -1,0 +1,19 @@
+{
+  "name": "pm-agent",
+  "version": "1.0.0",
+  "description": "Agent for Productionmap",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProductionMap/PM-agent.git"
+  },
+  "author": "Productionmapteam (Roy Talyosef)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ProductionMap/PM-agent/issues"
+  },
+  "homepage": "https://github.com/ProductionMap/PM-agent#readme"
+}
