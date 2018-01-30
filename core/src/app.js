@@ -18,6 +18,7 @@ if (!fs.existsSync(environment.keyPath)) {
 }
 
 const agentKey = fs.readFileSync(environment.keyPath, 'utf-8');
+environment.key = agentKey;
 
 const app = express();
 
@@ -55,13 +56,18 @@ app.use(expressWinston.logger({
 }));
 //
 // middleware to check request key
+
 app.post('*', function (req, res, next) {
     const key = req.body ? req.body.key : null;
+    if (req.url === "/api/plugins/install") {
+        return next();
+    }
     if (!key) {
         return res.status(500).send("No key was provided");
 
     }
     if (key !== agentKey) {
+        console.log("Wrong key");
         return res.status(500).send("Wrong key");
     }
     next();
@@ -74,15 +80,16 @@ app.post('*', function (req, res, next) {
 
 /* api references */
 const statusApi = require("./api/routes/status.routes");
+const pluginsApi = require("./api/routes/plugins.routes");
 
 app.use('/api/status', statusApi);
+app.use('/api/plugins', pluginsApi);
 
 
 /* sending 404 to all uncatched requests */
 app.use('*', function (req, res, next) {
     return res.status(404).send();
 });
-
 
 const server = http.createServer(app);
 
