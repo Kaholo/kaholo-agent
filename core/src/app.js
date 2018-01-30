@@ -81,9 +81,11 @@ app.post('*', function (req, res, next) {
 /* api references */
 const statusApi = require("./api/routes/status.routes");
 const pluginsApi = require("./api/routes/plugins.routes");
+const executionApi = require("./api/routes/execution.routes");
 
 app.use('/api/status', statusApi);
 app.use('/api/plugins', pluginsApi);
+app.use('/api/task', executionApi);
 
 
 /* sending 404 to all uncatched requests */
