@@ -2,16 +2,9 @@ const winston = require("winston");
 
 const environment = require('../../environment/environment');
 const pluginsLoader = require('../../utils/pluginsLoader');
+const packgify = require('../../utils/packgify');
 const pluginsService = require("../services/plugins.service");
 
-
-function packagify(modules) {
-    // returns an object where key's value is the version of the plugin.
-    return Object.keys(modules).reduce((total, current) => {
-        total[current] = modules[current].version;
-        return total;
-    }, {});
-}
 
 
 
@@ -34,7 +27,7 @@ module.exports = {
     },
     /* list plugins */
     list: (req, res) => {
-        const modules = packagify(pluginsLoader.module_holder);
+        const modules = packgify.packagify(pluginsLoader.module_holder);
         return res.json(modules);
     }
 };
