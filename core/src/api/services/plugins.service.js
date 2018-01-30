@@ -66,8 +66,10 @@ module.exports = {
                         //get the config file and pass it to the installer
                         let obj = JSON.parse(body);
                         installPlugin(filePath, obj).then(function () {
-                            return resolve()
+                            fs.unlinkSync(filePath); // deleting the uploaded file
+                            return resolve();
                         }).catch(function (error) {
+                            fs.unlinkSync(filePath); // deleting the uploaded file
                             throw new Error(error);
                         });
                     })
