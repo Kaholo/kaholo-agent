@@ -6,7 +6,7 @@ const diskspace = require("diskspace");
 module.exports = {
     /*return status agent status with basic information*/
     status: (req, res) => {
-        winston.info("Check agent status");
+        // winston.info("Check agent status");
         diskspace.check('C', function (err, total, free, status) {
             free = free || total.free;
             res.status(200);

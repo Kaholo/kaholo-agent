@@ -10,7 +10,6 @@ const parseArgs = require('minimist')(process.argv.slice(2));
 
 const environment = require("./environment/environment");
 const bootstrap = require("./utils/bootstrap");
-let agentKey;
 
 if (!fs.existsSync(environment.keyPath)) {
     winston.info("Writing pm key");
@@ -18,22 +17,13 @@ if (!fs.existsSync(environment.keyPath)) {
     createKey.generateKey(environment.keyPath);
 }
 
-fs.readFile(environment.keyPath, 'utf8', function (err, data) {
-    if (err) {
-        winston.error("Error reading key");
-    }
-    agentKey = data;
-});
+const agentKey = fs.readFileSync(environment.keyPath, 'utf-8');
 
 const app = express();
 
 //////////////////////
 /// configuration ///
 ////////////////////
-
-/* configure port */
-const PORT = (parseArgs.PORT || 8090);
-
 
 // enable cors
 app.use((req, res, next) => {
@@ -51,7 +41,7 @@ app.use(bodyParser.urlencoded({
 app.use(expressWinston.logger({
     transports: [
         new winston.transports.Console({
-            json: true,
+            json: false,
             colorize: true
         })
     ],
@@ -59,7 +49,9 @@ app.use(expressWinston.logger({
     msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
     expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
     colorize: false, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
-    ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
+    ignoreRoute: function (req, res) {
+        return '/api/status' === (req.originalUrl || req.url);
+    } // optional: allows to skip some log messages based on request and/or response
 }));
 //
 // middleware to check request key
@@ -86,7 +78,6 @@ const statusApi = require("./api/routes/status.routes");
 app.use('/api/status', statusApi);
 
 
-
 /* sending 404 to all uncatched requests */
 app.use('*', function (req, res, next) {
     return res.status(404).send();
@@ -95,8 +86,8 @@ app.use('*', function (req, res, next) {
 
 const server = http.createServer(app);
 
-server.listen(PORT, () => {
-    console.log(`Running on localhost:${PORT}`);
-    bootstrap.bootstrap(app);
+server.listen(environment.port, () => {
+    console.log(`Running on localhost:${environment.port}`);
+    bootstrap.bootstrap(app, agentKey);
 });
 
