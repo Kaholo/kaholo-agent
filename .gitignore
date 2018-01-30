@@ -3,6 +3,7 @@ project
 .idea/*
 static_cdn/
 package-lock.json
+/key
 
 # Ignore npm/yarn debug log
 npm-debug.log
