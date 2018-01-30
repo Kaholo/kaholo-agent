@@ -9,6 +9,7 @@ const expressWinston = require('express-winston');
 const parseArgs = require('minimist')(process.argv.slice(2));
 
 const environment = require("./environment/environment");
+const bootstrap = require("./utils/bootstrap");
 let agentKey;
 
 if (!fs.existsSync(environment.keyPath)) {
@@ -84,9 +85,18 @@ const statusApi = require("./api/routes/status.routes");
 
 app.use('/api/status', statusApi);
 
+
+
+/* sending 404 to all uncatched requests */
+app.use('*', function (req, res, next) {
+    return res.status(404).send();
+});
+
+
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
     console.log(`Running on localhost:${PORT}`);
+    bootstrap.bootstrap(app);
 });
 
