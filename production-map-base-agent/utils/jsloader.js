@@ -64,7 +64,11 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
         } else if (result) {
             stdout += '\n' + result;
         }
-        result = data.toString();
+        try {
+            result = data.toString();
+        } catch (e) {
+            result = data;
+        }
     }
 
     var deffered = q.defer();
@@ -109,3 +113,4 @@ setTimeout(function () {
 
 exports.loadModules = LoadModules;
 exports.runModuleFunction = runModuleFunction;
+exports.modules = module_holder;
