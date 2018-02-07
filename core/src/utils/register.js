@@ -4,14 +4,15 @@ const winston = require("winston");
 const request = require("superagent");
 
 
-function sendKeyToServer(agentKey, serverUrl, agentUrl) {
+function sendKeyToServer(agentKey, serverUrl, privateUrl, publicUrl) {
     let agent = request.agent();
     agent
         .post(`${serverUrl}/api/agents/add`)
         .withCredentials()
         .send({
             name: os.hostname().replace(".", "") + '-' + process.platform.replace(".", ""),
-            url: agentUrl,
+            url: privateUrl,
+            publicUrl: publicUrl,
             key: agentKey
         })
         .set('Accept', 'application/json, text/plain, */*')
