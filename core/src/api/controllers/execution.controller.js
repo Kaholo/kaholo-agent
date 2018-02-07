@@ -4,7 +4,11 @@ const executionsManager = require("../../utils/execution-manager");
 let tasks = {};
 
 module.exports = {
-    /* add a new task to the agent */
+    /**
+     * registering and executing action.
+     * @param req - contains action, mapId, versionId, executionId
+     * @param res
+     */
     add: (req, res) => {
         let action = req.body.action;
         let mapId = req.body.mapId;
@@ -12,7 +16,7 @@ module.exports = {
         let executionId = req.body.executionId;
         tasks[action._id] = 'executing';
 
-        executionService.runTask(action.plugin.name, action.method.name, action, mapId, versionId, executionId, action.name).then(
+        executionService.runTask(action.plugin.name, action.method.name, action, mapId, versionId, executionId).then(
             function (result) {
                 executionsManager.actionDone(mapId, action.name);
                 if (result.status === 'error') {
@@ -26,16 +30,28 @@ module.exports = {
             }
         );
     },
-    /* cancel a task that was registered */
+
+    /**
+     * Killing an action
+     * @param req - will contain mapId and actionId.
+     * @param res
+     * @returns {object}
+     */
     cancel: (req, res) => {
         try {
-            executionsManager.killAction(req.body.mapId, req.body.action.name);
+            executionsManager.killAction(req.body.mapId, req.body.actionId);
             return res.status(204).send();
         } catch (error) {
             return res.status(500).send(error);
         }
     },
-    /* get status of running tasks */
+
+    /**
+     * return all tasks status
+     * @param req
+     * @param res
+     * @returns {object}
+     */
     status: (req, res) => {
         return res.json(tasks);
     }
