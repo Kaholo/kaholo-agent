@@ -5,7 +5,7 @@ const q = require('q');
 const executionsManager = require("../../utils/execution-manager");
 const pluginsLoader = require('../../utils/pluginsLoader');
 
-function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId, executionId, actionId) {
+function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId, executionId) {
     let stdout = "";
     let stderr = "";
     let result = "";
@@ -28,7 +28,7 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
         let currentModule = pluginsLoader.module_holder[moduleType];
         let workerProcess = child_process.spawn(currentModule.execProgram, [currentModule.main, JSON.stringify(paramsJson)]);
 
-        executionsManager.addMapExecution(mapId, versionId, executionId, actionId, workerProcess);
+        executionsManager.addMapExecution(mapId, versionId, executionId, paramsJson._id, workerProcess);
         workerProcess.stdout.on('data', function (data) {
             sumResult(null, data);
         });

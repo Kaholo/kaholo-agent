@@ -35,8 +35,11 @@ function actionDone(mapId, actionId) {
 
 }
 
-function killAction(mapId, actionName) {
-    executions[mapId][actionName].kill('SIGTERM');
+function killAction(mapId, actionId) {
+    if (!executions.hasOwnProperty(mapId) || !executions[mapId].hasOwnProperty(actionId)) {
+        return ;
+    }
+    executions[mapId][actionId].kill('SIGTERM');
 }
 
 exports.addMapExecution = addMapExecution;
