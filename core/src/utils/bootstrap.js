@@ -7,6 +7,7 @@ const environment = require("../environment/environment");
 const pluginsLoader = require("../utils/pluginsLoader");
 const register = require("../utils/register");
 const publicIp = require('public-ip');
+const socketController = require("../api/controllers/socket.controller");
 
 module.exports = {
     bootstrap: (app, agentKey) => {
@@ -19,7 +20,14 @@ module.exports = {
             pluginsLoader.loadPluginModule(environment.pluginsPath, null);
             winston.info("Finish loading plugins");
             winston.info("Sending key to server");
-            register.register(agentKey, environment.server_url, `http://${environment.ip}:${environment.port}`, `http://${environment.publicIp}:${environment.port}`);
+            register.register(
+                agentKey,
+                environment.server_url,
+                `http://${environment.ip}:${environment.port}`,
+                `http://${environment.publicIp}:${environment.port}`)
+                .then(() => {
+                    socketController.subscribeToSocket();
+                }).catch(() => {});
         }
 
         publicIp.v4().then(ip => {
