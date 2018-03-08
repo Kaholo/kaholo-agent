@@ -1,0 +1,9 @@
+app.js usr/lib/nodejs/production-map-agent
+bin usr/lib/nodejs/production-map-agent
+conf usr/lib/nodejs/production-map-agent
+node_modules	usr/lib/nodejs/production-map-agent
+package.json usr/lib/nodejs/production-map-agent
+public usr/lib/nodejs/production-map-agent
+routes usr/lib/nodejs/production-map-agent
+utils usr/lib/nodejs/production-map-agent
+views usr/lib/nodejs/production-map-agent
