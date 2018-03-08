@@ -1,0 +1,17 @@
+Source: production-map-agent
+Section: net
+Priority: optional
+Maintainer: Lior Kaplan <lior@kaplanopensource.co.il>
+Build-Depends: debhelper (>= 9), dh-systemd (>= 1.5), nodejs
+Standards-Version: 4.0.0
+Homepage: http://www.productionmap.com
+Vcs-Browser: https://github.com/ProductionMap/PM-agent.git
+Version: 1.0.0
+Package: production-map-agent
+Architecture: all
+Depends: nodejs
+Description: platform for developing and executing DevOps automations
+ This package requires nodejs to work, please
+ check https://github.com/nodesource/distributions#deb and
+ .
+ Sources at https://github.com/ProductionMap/PM-agent
