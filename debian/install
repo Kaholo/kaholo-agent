@@ -1,0 +1,4 @@
+core usr/lib/nodejs/production-map-agent
+node_modules	usr/lib/nodejs/production-map-agent
+package.json usr/lib/nodejs/production-map-agent
+config usr/lib/nodejs/production-map-agent

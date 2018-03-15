@@ -1,0 +1,10 @@
+[Unit]
+Description=ProductionMap agent
+
+[Service]
+EnvironmentFile=-/etc/default/production-map-agent
+ExecStart=/usr/bin/nodejs /usr/lib/nodejs/production-map-agent/core/src/app.js
+
+[Install]
+WantedBy=multi-user.target
+
