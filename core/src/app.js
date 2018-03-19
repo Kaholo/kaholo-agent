@@ -73,6 +73,10 @@ app.post('*', function (req, res, next) {
     next();
 });
 
+app.use((req, res, next) => {
+    req.app = app;
+    next();
+});
 
 //////////////////////
 /////// routes //////
@@ -82,10 +86,12 @@ app.post('*', function (req, res, next) {
 const statusApi = require("./api/routes/status.routes");
 const pluginsApi = require("./api/routes/plugins.routes");
 const executionApi = require("./api/routes/execution.routes");
+const socketApi = require("./api/routes/socket.routes");
 
 app.use('/api/status', statusApi);
 app.use('/api/plugins', pluginsApi);
 app.use('/api/task', executionApi);
+app.use('/api/socket', socketApi);
 
 
 /* sending 404 to all uncatched requests */

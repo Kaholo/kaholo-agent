@@ -6,6 +6,8 @@ const request = require("superagent");
 
 function sendKeyToServer(agentKey, serverUrl, privateUrl, publicUrl) {
     let agent = request.agent();
+    return new Promise((resolve, reject) => {
+
     agent
         .post(`${serverUrl}/api/agents/add`)
         .withCredentials()
@@ -27,12 +29,16 @@ function sendKeyToServer(agentKey, serverUrl, privateUrl, publicUrl) {
                         in this case delete the key folder and rerun the application`);
                 winston.info("Exiting process");
                 /* close program when failed connecting to the server */
+                reject();
                 process.exit();
             }
             else {
                 console.log("Agent installed successfuly.");
+
             }
+            return resolve();
         });
+    });
 }
 
 module.exports = {
