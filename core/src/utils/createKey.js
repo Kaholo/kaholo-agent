@@ -9,11 +9,6 @@ function randomValueHex(len) {
         .slice(0, len);   // return required number of characters
 }
 
-function writePmFile(path, value) {
-
-}
-
-
 module.exports = {
 
     /* generates pm file to the path specific*/
@@ -21,9 +16,7 @@ module.exports = {
         console.log(outputPath);
         const keyValue = randomValueHex(128);
         mkdirp.sync(path.dirname(outputPath));
-        fs.writeFileSync(outputPath, keyValue, function (error) {
-            throw new Error(error);
-        });
+        fs.writeFileSync(outputPath, keyValue);
         return true;
     }
 };
