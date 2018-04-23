@@ -33,7 +33,7 @@ function sendKeyToServer(agentKey, serverUrl, privateUrl, publicUrl) {
                 process.exit();
             }
             else {
-                console.log("Agent installed successfuly.");
+                console.log("Agent installed successfully.");
 
             }
             return resolve();
