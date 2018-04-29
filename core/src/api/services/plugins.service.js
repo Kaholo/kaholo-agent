@@ -2,7 +2,7 @@ const exec = require('child_process').exec;
 const fs = require("fs");
 const path = require("path");
 
-const unzip = require('unzip');
+const unzip = require('node-unzip-2');
 const streams = require('memory-streams');
 
 const environment = require('../../environment/environment');
