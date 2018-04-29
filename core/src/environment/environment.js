@@ -1,4 +1,6 @@
 const path = require("path");
+
+const os = require("os");
 const ip = require('ip');
 const parseArgs = require('minimist')(process.argv.slice(2));
 
@@ -15,5 +17,10 @@ const server = {
     port: parseArgs.PORT || 8090
 };
 
-let env = Object.assign({}, paths, server, config);
+const agent_config = {
+    agentName: parseArgs.NAME || os.hostname().replace(".", "") + '-' + process.platform.replace(".", ""),
+    attributes: parseArgs.TAG ? (Array.isArray(parseArgs.TAG) ? parseArgs.TAG : [parseArgs.TAG]) : null
+};
+
+let env = Object.assign({}, paths, server, agent_config, config);
 module.exports = env;
