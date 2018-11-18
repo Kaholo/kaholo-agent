@@ -46,3 +46,8 @@ benchmarks/graphs
 
 private.ts
 /.idea
+
+
+/libs/plugins/*
+/tmp/*
+/uploads/*

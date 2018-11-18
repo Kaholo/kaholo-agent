@@ -1,8 +1,9 @@
 const exec = require('child_process').exec;
 const fs = require("fs");
 const path = require("path");
+const del = require("del");
 
-const unzip = require('node-unzip-2');
+const unzip = require('unzipper');
 const streams = require('memory-streams');
 
 const environment = require('../../environment/environment');
@@ -20,64 +21,66 @@ function installPlugin(filePath, obj) {
         }
 
         fs.createReadStream(filePath)
-            .pipe(unzip.Parse())
-            .on('entry', function (entry) {
-                let fileName = entry.path;
-                entry.pipe(fs.createWriteStream(path.join(dirName, fileName)));
-            }).on('close', function (data) {
-            console.log('end data');
-            let cmd = 'cd ' + dirName + '&&' + ' npm install ' + " && cd " + __dirname;
-            exec(cmd, function (error, stdout, stderr) {
-                console.log(stdout);
-                console.log(stderr);
-                console.log(error);
-                if (error) {
-                    reject(error);
-                }
-                pluginsLoader.loadPluginModule(dirName).then(function (err) {
-                    if (err) {
-                        return reject(err);
+            .pipe(unzip.Extract({ path: dirName }))
+            .on('finish', function (data) {
+                console.log('end data');
+                let cmd = 'cd ' + dirName + ' && ' + 'npm install ' + " && cd " + __dirname;
+                exec(cmd, function (error, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    console.log(error);
+                    if (error) {
+                        reject(error);
                     }
+                    pluginsLoader.loadPluginModule(dirName).then(function (err) {
+                        if (err) {
+                            return reject(err);
+                        }
+                    });
+                    resolve();
                 });
-                resolve();
             });
-        });
 
     });
 }
 
 module.exports = {
     install: (filePath) => {
-        return new Promise ((resolve, reject) => {
+        return new Promise((resolve, reject) => {
+            let extPath = path.join(environment.tmpPath, "" + new Date().getTime());
+            fs.createReadStream(filePath)
+                .pipe(unzip.Extract({ path: extPath }))
+                .on('finish', function () {
+                    let configPath = path.join(extPath, "config.json");
+                    fs.exists(configPath, exists => {
+                        if (!exists) return reject("No config file found!");
 
-        fs.createReadStream(filePath)
-            .pipe(unzip.Parse())
-            .on('entry', function (entry) {
-                let fileName = entry.path;
-                if (fileName === 'config.json') {
-                    let writer = new streams.WritableStream();
-                    entry.pipe(writer);
-                    let body = '';
-                    entry.on('data', function (chunk) {
-                        body += chunk;
-                    });
+                        fs.readFile(configPath, "utf8", (err, body) => {
+                            if (err) return reject("Error reading config file: ", err);
 
-                    entry.on('end', function () {
-                        //get the config file and pass it to the installer
-                        let obj = JSON.parse(body);
-                        installPlugin(filePath, obj).then(function () {
-                            fs.unlinkSync(filePath); // deleting the uploaded file
-                            return resolve();
-                        }).catch(function (error) {
-                            fs.unlinkSync(filePath); // deleting the uploaded file
-                            throw new Error(error);
+                            del([extPath]).then(() => {
+                                console.log("info", "Deleted extracted directory");
+                            }).catch(err => {
+                                console.log("error", "Error deleting extracted directory");
+                            });
+
+                            let obj;
+                            try {
+                                obj = JSON.parse(body);
+                            } catch (e) {
+                                return reject("Error parsing config file: ", e);
+                            }
+
+                            installPlugin(filePath, obj).then(function () {
+                                fs.unlinkSync(filePath); // deleting the uploaded file
+                                return resolve();
+                            }).catch(function (error) {
+                                fs.unlinkSync(filePath); // deleting the uploaded file
+                                throw new Error(error);
+                            });
                         });
                     })
-                } else {
-                    entry.autodrain();
-                }
-            });
+                });
         });
-
     }
 };
