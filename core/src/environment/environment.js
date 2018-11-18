@@ -6,9 +6,12 @@ const parseArgs = require('minimist')(process.argv.slice(2));
 
 const config = require("../../../config/config");
 
+const BASE_DIR = path.dirname(path.dirname(path.dirname(__dirname)));
+
 const paths = {
-    keyPath: path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'config', 'key.pm'),
-    pluginsPath: path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'libs', 'plugins')
+    keyPath: path.join(BASE_DIR, 'config', 'key.pm'),
+    pluginsPath: path.join(BASE_DIR, 'libs', 'plugins'),
+    tmpPath: path.join(BASE_DIR, 'tmp')
 };
 
 const server = {
