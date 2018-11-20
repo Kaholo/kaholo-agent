@@ -1,0 +1,8 @@
+Package: kaholo-agent
+Version: 1.0-1
+Section: base
+Priority: optional
+Architecture: all
+Depends: nodejs (>= 10.13.0)
+Maintainer: Your Name <you@email.com>
+Description: description
