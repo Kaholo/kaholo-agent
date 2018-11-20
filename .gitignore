@@ -51,3 +51,8 @@ private.ts
 /libs/plugins/*
 /tmp/*
 /uploads/*
+
+#centOs
+*.service
+SOURCES
+SPECS
