@@ -18,7 +18,10 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
             stdout += '\n' + result;
         }
         try {
-            result = JSON.parse(data.toString());
+            result = data.toString();
+            try{
+                result = JSON.parse(result);
+            } catch(e){}
         } catch (e) {
             result = data;
         }
