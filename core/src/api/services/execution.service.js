@@ -1,9 +1,10 @@
 const child_process = require('child_process');
-
+const path = require('path');
 const q = require('q');
 
 const executionsManager = require("../../utils/execution-manager");
 const pluginsLoader = require('../../utils/pluginsLoader');
+const workersPath = path.join(__dirname, '../../workers');
 
 function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId, executionId) {
     let stdout = "";
@@ -18,6 +19,9 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
         }
         try {
             result = data.toString();
+            try{
+                result = JSON.parse(result);
+            } catch(e){}
         } catch (e) {
             result = data;
         }
@@ -26,7 +30,14 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
     let deffered = q.defer();
     if (pluginsLoader.module_holder.hasOwnProperty(moduleType)) {
         let currentModule = pluginsLoader.module_holder[moduleType];
-        let workerProcess = child_process.spawn(currentModule.execProgram, [currentModule.main, JSON.stringify(paramsJson)]);
+        let workerProcess;
+
+        if (currentModule.execProgram == 'node'){
+            workerProcess = child_process.spawn(currentModule.execProgram, [path.join(workersPath,'node.js'), currentModule.main, JSON.stringify(paramsJson)]);
+        } else {
+            workerProcess = child_process.spawn(currentModule.execProgram, [currentModule.main, JSON.stringify(paramsJson)]);
+        }
+
 
         executionsManager.addMapExecution(mapId, versionId, executionId, paramsJson._id, workerProcess);
         workerProcess.stdout.on('data', function (data) {
