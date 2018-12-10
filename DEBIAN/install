@@ -1,0 +1,5 @@
+core etc/kaholo/agent
+node_modules	etc/kaholo/agent
+package.json etc/kaholo/agent
+config etc/kaholo/agent
+debian/kaholo-agent.service /lib/systemd/system

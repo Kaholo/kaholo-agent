@@ -1,8 +1,13 @@
+Source: kaholo
+Section: net
+Priority: optional
+Maintainer: Kaholo <info@kaholo.io>
+Build-Depends: debhelper (>= 9), dh-systemd (>= 1.5), nodejs
+Homepage: https://www.kaholo.io
+Vcs-Browser: https://github.com/Kaholo/PM-server.git
+
 Package: kaholo-agent
 Version: 1.0-1
-Section: base
-Priority: optional
 Architecture: all
 Depends: nodejs (>= 10.13.0)
-Maintainer: Your Name <you@email.com>
 Description: description
