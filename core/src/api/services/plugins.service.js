@@ -45,9 +45,12 @@ function installPlugin(filePath, obj) {
 }
 
 function deletePlugin(name){
-    rimraf(`libs/plugins/${name}`,function(res,err){
-        console.log(res)
-    })
+    return new Promise((resolve,reject) => {
+        rimraf(`libs/plugins/${name}`,(err,res)=>{
+          if(err) return reject(err)
+          else return resolve(res)
+        })
+      })
 }
 
 module.exports = {
