@@ -7,7 +7,7 @@ Homepage: https://www.kaholo.io
 Vcs-Browser: https://github.com/Kaholo/PM-server.git
 
 Package: kaholo-agent
-Version: 1.0-1
+Version: {{version}}
 Architecture: all
 Depends: nodejs (>= 10.13.0)
 Description: description
