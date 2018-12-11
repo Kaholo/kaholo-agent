@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
+app.use(bodyParser.json())
 app.use(expressWinston.logger({
     transports: [
         new winston.transports.Console({
