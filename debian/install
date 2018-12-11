@@ -1,4 +1,4 @@
-core usr/lib/nodejs/production-map-agent
-node_modules	usr/lib/nodejs/production-map-agent
-package.json usr/lib/nodejs/production-map-agent
-config usr/lib/nodejs/production-map-agent
+core var/lib/kaholo/kaholo-agent
+package.json var/lib/kaholo/kaholo-agent
+config var/lib/kaholo/kaholo-agent
+debian/kaholo-agent.service /lib/systemd/system

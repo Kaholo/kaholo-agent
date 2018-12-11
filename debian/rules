@@ -6,6 +6,6 @@
 %:
 	dh $@ --with=systemd
 
-override_dh_auto_build-indep:
-	npm install
+#override_dh_auto_build-indep:
+#	npm install
 #override_dh_auto_install-indep:
