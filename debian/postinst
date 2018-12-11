@@ -1,5 +1,5 @@
 #!/bin/sh
 
 set -e
-cd /etc/kaholo/kaholo-agent
+cd /var/lib/kaholo/kaholo-agent
 npm install
