@@ -4,8 +4,8 @@ After=network-online.target
 
 [Service]
 Restart=always
-WorkingDirectory=/etc/kaholo/kaholo-agent
-ExecStart=/usr/bin/nodejs /etc/kaholo/kaholo-agent/core/src/app.js
+WorkingDirectory=/var/lib/kaholo/kaholo-agent
+ExecStart=/usr/bin/nodejs /var/lib/kaholo/kaholo-agent/core/src/app.js
 
 [Install]
 WantedBy=multi-user.target
