@@ -9,5 +9,6 @@ router.use(multer({ dest: './uploads/' }).single('file'));
 
 router.post('/', pluginsController.list);
 router.post('/install', pluginsController.install);
+router.post('/delete', pluginsController.delete);
 
 module.exports = router;

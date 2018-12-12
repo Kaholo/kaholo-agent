@@ -2,7 +2,7 @@ const exec = require('child_process').exec;
 const fs = require("fs");
 const path = require("path");
 const del = require("del");
-
+const rimraf = require("rimraf")
 const unzip = require('unzipper');
 const streams = require('memory-streams');
 
@@ -44,6 +44,15 @@ function installPlugin(filePath, obj) {
     });
 }
 
+function deletePlugin(name){
+    return new Promise((resolve,reject) => {
+        rimraf(`libs/plugins/${name}`,(err,res)=>{
+          if(err) return reject(err)
+          else return resolve(res)
+        })
+      })
+}
+
 module.exports = {
     install: (filePath) => {
         return new Promise((resolve, reject) => {
@@ -82,5 +91,6 @@ module.exports = {
                     })
                 });
         });
-    }
+    },
+    delete : deletePlugin
 };
