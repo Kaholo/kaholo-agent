@@ -10,10 +10,6 @@ const pluginsService = require("../services/plugins.service");
 module.exports = {
     /* get a plugin file and install it */
     install: (req, res) => {
-        //get plugin config file
-        if (!req.body.key || environment.key !== req.body.key) {
-            return res.status(500).send("Invalid key");
-        }
         winston.info("Installing plugin");
 
         pluginsService.install(req.file.path).then(() => {
@@ -26,10 +22,6 @@ module.exports = {
     },
 
     delete: (req, res) => {
-        //get plugin config file
-        if (!req.body.key || environment.key !== req.body.key) {
-            return res.status(500).send("Invalid key");
-        }
         winston.info("Deleting plugin");
 
         pluginsService.delete(req.body.name).then(() => {

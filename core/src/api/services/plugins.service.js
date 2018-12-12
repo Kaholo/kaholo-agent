@@ -92,12 +92,5 @@ module.exports = {
                 });
         });
     },
-    delete : (name)=> {
-        return new Promise((resolve,reject) => {
-            if (name){
-                resolve(deletePlugin(name))
-            }
-            else reject()
-        })
-    }
+    delete : deletePlugin
 };
