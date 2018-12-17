@@ -1,0 +1,12 @@
+[Unit]
+Description=Kaholo agent
+After=network-online.target
+
+[Service]
+Restart=always
+WorkingDirectory=/var/lib/kaholo/kaholo-agent
+ExecStart=/usr/bin/nodejs /var/lib/kaholo/kaholo-agent/core/src/app.js
+
+[Install]
+WantedBy=multi-user.target
+

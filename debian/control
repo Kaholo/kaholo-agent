@@ -1,17 +1,13 @@
-Source: production-map-agent
+Source: kaholo
 Section: net
 Priority: optional
-Maintainer: Lior Kaplan <lior@kaplanopensource.co.il>
+Maintainer: Kaholo <info@kaholo.io>
 Build-Depends: debhelper (>= 9), dh-systemd (>= 1.5), nodejs
-Standards-Version: 4.0.0
-Homepage: http://www.productionmap.com
-Vcs-Browser: https://github.com/ProductionMap/PM-agent.git
+Homepage: https://www.kaholo.io
+Vcs-Browser: https://github.com/Kaholo/PM-server.git
 
-Package: production-map-agent
+Package: kaholo-agent
+Version: {{version}}
 Architecture: all
-Depends: nodejs
-Description: platform for developing and executing DevOps automations
- This package requires nodejs to work, please
- check https://github.com/nodesource/distributions#deb and
- .
- Sources at https://github.com/ProductionMap/PM-agent
+Depends: nodejs (>= 10.13.0)
+Description: description
