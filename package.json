@@ -1,7 +1,7 @@
 {
-  "name": "pm-agent",
-  "version": "1.0.0",
-  "description": "Agent for Productionmap",
+  "name": "kaholo-agent",
+  "version": "1.2.3",
+  "description": "Agent for Kaholo",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ProductionMap/PM-agent.git"
+    "url": "git+https://github.com/Kaholo/kaholo-agent.git"
   },
-  "author": "Productionmapteam (Roy Talyosef)",
+  "author": "Kaholo team",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ProductionMap/PM-agent/issues"
+    "url": "https://github.com/Kaholo/kaholo-agent/issues"
   },
-  "homepage": "https://github.com/ProductionMap/PM-agent#readme",
+  "homepage": "https://github.com/Kaholo/kaholo-agent#readme",
   "dependencies": {
     "del": "3.0.0",
     "diskspace": "2.0.0",
@@ -44,7 +44,6 @@
     "speculate": "1.7.4"
   },
   "spec": {
-    "nodeVersion": "> 10.13.0"  
-}
-
+    "nodeVersion": "> 10.13.0"
+  }
 }
