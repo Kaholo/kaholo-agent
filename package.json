@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node core/src/app.js --PORT=9292",
-    "dev": "nodemon core/src/app.js --PORT=9292 --ignore './libs/'"
+    "dev": "nodemon core/src/app.js --PORT=9292 --ignore './libs/'",
+    "spec": "speculate --name=kaholo-agent"
   },
   "repository": {
     "type": "git",
@@ -38,5 +39,12 @@
     "streams": "0.1.0",
     "superagent": "3.8.2",
     "winston": "2.4.0"
-  }
+  },
+  "devDependencies": {
+    "speculate": "1.7.4"
+  },
+  "spec": {
+    "nodeVersion": "> 10.13.0"  
+}
+
 }
