@@ -5,7 +5,11 @@ const multer = require("multer");
 
 const pluginsController = require("../controllers/plugins.controller");
 
-router.use(multer({ dest: './uploads/' }).single('file'));
+router.use(function(req ,res, next){
+    multer({ dest: './uploads/' }).single('file')(req,res,function(err){
+        next();
+    })
+});
 
 router.post('/', pluginsController.list);
 router.post('/install', pluginsController.install);
