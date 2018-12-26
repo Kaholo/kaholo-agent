@@ -27,6 +27,14 @@ function runModuleFunction(moduleType, methodName, paramsJson, mapId, versionId,
         }
     }
 
+    if(paramsJson.settings && paramsJson.settings.length){
+        let settings = {};
+        for (let i=0, length=paramsJson.settings.length; i<length; i++){
+            settings[paramsJson.settings[i].name] = paramsJson.settings[i].value;
+        }
+        paramsJson.settings = settings;
+    }
+
     let deffered = q.defer();
     if (pluginsLoader.module_holder.hasOwnProperty(moduleType)) {
         let currentModule = pluginsLoader.module_holder[moduleType];

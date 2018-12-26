@@ -20,12 +20,13 @@ function listeners() {
     socket.on('add-task', (data) => {
         winston.log("info", "got new task");
         let action = data.action;
+        let settings = data.settings;
         let mapId = data.mapId.toString();
         let versionId = data.versionId.toString();
         let executionId = data.executionId.toString();
         tasks[action._id] = 'executing';
 
-        executionService.runTask(action.plugin.name, action.method.name, action, mapId, versionId, executionId)
+        executionService.runTask(action.plugin.name, action.method.name, {action, settings}, mapId, versionId, executionId)
             .then((result) => {
                     executionsManager.actionDone(mapId, action.name);
                     winston.log("info", "emitting result to server");
