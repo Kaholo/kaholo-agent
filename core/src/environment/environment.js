@@ -28,7 +28,7 @@ if (parseArgs.TAG){
 }
 
 const agent_config = {
-    agentName: parseArgs.NAME || os.hostname().replace(".", "") + '-' + process.platform.replace(".", ""),
+    agentName: parseArgs.NAME || config.name || os.hostname().replace(".", "") + '-' + process.platform.replace(".", ""),
     attributes: attributes
 };
 
