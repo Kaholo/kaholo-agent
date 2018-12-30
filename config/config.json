@@ -1,1 +1,5 @@
-{}
+{
+    "port" : 8090,
+    "server_url" : "http://localhost:3000",
+    "tags" : []
+}

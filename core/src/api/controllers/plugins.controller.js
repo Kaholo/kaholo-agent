@@ -1,11 +1,8 @@
 const winston = require("winston");
 
-const environment = require('../../environment/environment');
 const pluginsLoader = require('../../utils/pluginsLoader');
 const packgify = require('../../utils/packgify');
 const pluginsService = require("../services/plugins.service");
-
-
 
 module.exports = {
     /* get a plugin file and install it */

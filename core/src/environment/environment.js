@@ -15,14 +15,21 @@ const paths = {
 };
 
 const server = {
-    server_url: parseArgs.SERVER_URL || 'http://localhost:3000',
+    server_url: parseArgs.SERVER_URL || config.server_url || 'http://localhost:3000',
     ip: ip.address(),
-    port: parseArgs.PORT || 8090
+    port: parseArgs.PORT || config.port || 8090
 };
+
+let attributes = null;
+if (parseArgs.TAG){
+    attributes = (Array.isArray(parseArgs.TAG) ? parseArgs.TAG : [parseArgs.TAG]);
+} else if (config.tags){
+    attributes = config.tags;    
+}
 
 const agent_config = {
     agentName: parseArgs.NAME || os.hostname().replace(".", "") + '-' + process.platform.replace(".", ""),
-    attributes: parseArgs.TAG ? (Array.isArray(parseArgs.TAG) ? parseArgs.TAG : [parseArgs.TAG]) : null
+    attributes: attributes
 };
 
 let env = Object.assign({}, paths, server, agent_config, config);
