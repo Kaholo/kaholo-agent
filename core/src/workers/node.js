@@ -9,8 +9,8 @@ function main(argv) {
 
     try{
         let functions = require(modulepath);
-        let action = JSON.parse(argv[3]);
-        functions[action.method.name](action).then(function (res) {
+        let params = JSON.parse(argv[3]);
+        functions[params.action.method.name](params.action, params.settings).then(function (res) {
             console.log(JSON.stringify(res));
             process.exit(0); // Success
         }).catch(_handleError);
