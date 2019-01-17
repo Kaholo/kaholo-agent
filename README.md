@@ -1,3 +1,3 @@
-# PM-agent
-ProductionMap Agent
+# kaholo-agent
+Kaholo Agent
 
