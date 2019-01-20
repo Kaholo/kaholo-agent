@@ -11,12 +11,15 @@ module.exports = {
      */
     add: (req, res) => {
         let action = req.body.action;
+        let settings = req.body.settings;
         let mapId = req.body.mapId;
         let versionId = req.body.versionId;
         let executionId = req.body.executionId;
         tasks[action._id] = 'executing';
+      
+        
 
-        executionService.runTask(action.plugin.name, action.method.name, action, mapId, versionId, executionId).then(
+        executionService.runTask(action.plugin.name, action.method.name,{action, settings}, mapId, versionId, executionId).then(
             function (result) {
                 executionsManager.actionDone(mapId, action.name);
                 if (result.status === 'error') {
