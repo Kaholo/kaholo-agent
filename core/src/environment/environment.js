@@ -32,5 +32,5 @@ const agent_config = {
     attributes: attributes
 };
 
-let env = Object.assign({}, paths, server, agent_config, config);
+let env = Object.assign({}, paths, server, agent_config);
 module.exports = env;
