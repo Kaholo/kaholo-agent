@@ -1,9 +1,20 @@
-FROM node:carbon
+FROM node:10.15.0
 
-WORKDIR /app
-COPY . .
+# Create app directory
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
 RUN npm i
+# If you are building your code for production
+# RUN npm install --only=production
 
-EXPOSE 8090
+# Bundle app source
+COPY . .
 
-CMD ["node", "./core/src/app.js"]
+EXPOSE 9292
+
+CMD [ "npm", "start" ]
+
+
+
