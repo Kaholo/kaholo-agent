@@ -10,6 +10,7 @@ const parseArgs = require('minimist')(process.argv.slice(2));
 
 const environment = require("./environment/environment");
 const bootstrap = require("./utils/bootstrap");
+const SERVER_KEY_HEADER = 'x-kaholo-server-key'
 
 if (!fs.existsSync(environment.keyPath)) {
     winston.info("Writing pm key");
@@ -74,6 +75,17 @@ app.post('*', function (req, res, next) {
 });
 
 app.use((req, res, next) => {
+    
+    let serverKey = req.headers[SERVER_KEY_HEADER];
+    if(!serverKey){
+        return res.status(401).send('No key was provided')
+    }
+
+    if(environment.serverKey != serverKey ){
+        return res.status(401).send('Invalid key')
+    }
+
+
     req.app = app;
     next();
 });

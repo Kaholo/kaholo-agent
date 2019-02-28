@@ -33,4 +33,7 @@ const agent_config = {
 };
 
 let env = Object.assign({}, paths, server, agent_config);
+
+env.serverKey = ""  // TODO enter your server key 
+
 module.exports = env;

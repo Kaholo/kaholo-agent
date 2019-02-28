@@ -1,6 +1,5 @@
 const os = require("os");
 
-const winston = require("winston");
 const diskspace = require("diskspace");
 
 const packgify = require("../../utils/packgify");
