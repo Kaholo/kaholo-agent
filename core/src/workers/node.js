@@ -11,6 +11,9 @@ function main(argv) {
         let functions = require(modulepath);
         let params = JSON.parse(argv[3]);
         functions[params.action.method.name](params.action, params.settings).then(function (res) {
+            if (res instanceof Set)
+                res = Array.from(res);
+            
             console.log(JSON.stringify(res));
             process.exit(0); // Success
         }).catch(_handleError);
