@@ -4,6 +4,7 @@ const winston = require("winston");
 const env = require("../../environment/environment");
 const executionService = require("../services/execution.service");
 const executionsManager = require("../../utils/execution-manager");
+const statusController = require("../controllers/status.controller");
 
 
 let socket;
@@ -12,7 +13,12 @@ let tasks = {};
 
 function listeners() {
 
-    socket.on('connect', (data) => {
+    setInterval(async ()=>{ 
+        const agentStatus = await statusController.getStatus()
+        socket.emit('status', agentStatus)
+    },5000)
+
+    socket.on('connect', async (data) => {
         winston.log("info", "Socket is connected");
 
     });
