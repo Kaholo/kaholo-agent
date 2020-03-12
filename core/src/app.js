@@ -100,6 +100,7 @@ app.use('*', function (req, res, next) {
 });
 
 const server = http.createServer(app);
+server.setTimeout(3600000);
 
 server.listen(environment.port, () => {
     console.log(`Running on localhost:${environment.port}`);
