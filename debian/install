@@ -4,5 +4,5 @@ utils var/lib/kaholo/kaholo-agent
 workers var/lib/kaholo/kaholo-agent
 package.json var/lib/kaholo/kaholo-agent
 app.js var/lib/kaholo/kaholo-agent
+kaholo-agent.conf.example var/lib/kaholo/kaholo-agent
 debian/kaholo-agent.service /lib/systemd/system
-kaholo-agent.conf.example /etc/kaholo-agent/kaholo-agent.conf
