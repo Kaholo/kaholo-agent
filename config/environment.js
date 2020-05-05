@@ -17,10 +17,16 @@ module.exports = async function(){
     
     //Load conf file
     const defaultConfExist = fs.existsSync(defaultConfPath);
+    let configLoadResult;
     if(defaultConfExist){
-        dotenv.config({path : defaultConfExist});
+        configLoadResult = dotenv.config({path : defaultConfPath});
     } else {
-        dotenv.config({path: localConfPath});
+        configLoadResult = dotenv.config({path: localConfPath});
+    }
+
+    if (configLoadResult.error) {
+        console.error("Could not load configuration file:");
+        throw result.error
     }
 
     const defaultConf = {

@@ -19,6 +19,7 @@ module.exports.registerAgent = function() {
             .set('Content-Type', 'application/json;charset=UTF-8')
             .end(function (err, res) {
                 if (err) {
+                    
                     winston.error(
                         `Failed connecting to server. Possible reasons are:
                     1. Server url is incorrect
