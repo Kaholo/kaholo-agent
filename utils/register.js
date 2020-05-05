@@ -19,13 +19,14 @@ module.exports.registerAgent = function() {
             .set('Content-Type', 'application/json;charset=UTF-8')
             .end(function (err, res) {
                 if (err) {
-                    
                     winston.error(
                         `Failed connecting to server. Possible reasons are:
                     1. Server url is incorrect
                     2. Server is down
                     3. Agent Key is forbidden for use
                         in this case delete the key folder and rerun the application`);
+                    
+                    winston.error(err);
                     winston.info("Exiting process");
                     /* close program when failed connecting to the server */
                     reject();
@@ -33,7 +34,6 @@ module.exports.registerAgent = function() {
                 }
                 else {
                     console.log("Agent installed successfully.");
-
                 }
                 return resolve();
             });
