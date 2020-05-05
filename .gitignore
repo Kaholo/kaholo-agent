@@ -3,7 +3,7 @@ project
 .idea/*
 static_cdn/
 package-lock.json
-*.pm
+/.vscode
 
 # Ignore npm/yarn debug log
 npm-debug.log
@@ -56,3 +56,5 @@ private.ts
 *.service
 SOURCES
 SPECS
+
+kaholo-agent.conf

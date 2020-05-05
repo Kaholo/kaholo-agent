@@ -1,18 +1,16 @@
-FROM node:10.15.0
+FROM node:10.15.0-jessie
 
 # Create app directory
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm i
-# If you are building your code for production
-# RUN npm install --only=production
+RUN npm install --production
 
 # Bundle app source
 COPY . .
 
-EXPOSE 9292
+EXPOSE 8090
 
 CMD [ "npm", "start" ]
 

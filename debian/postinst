@@ -1,5 +1,8 @@
 #!/bin/sh
 
 set -e
+cd /lib/systemd/system
+sudo systemctl daemon-reload
+
 cd /var/lib/kaholo/kaholo-agent
-npm install
+npm install --production
