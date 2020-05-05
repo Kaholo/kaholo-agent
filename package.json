@@ -44,7 +44,7 @@
     "nodeVersion": "> 10.13.0",
     "post": [
       "mkdir -p /etc/kaholo-agent",
-      "cp /usr/lib/kaholo/kaholo-agent.conf.example /etc/kaholo-agent/kaholo-agent.conf"
+      "cp /usr/lib/kaholo-agent/kaholo-agent.conf.example /etc/kaholo-agent/kaholo-agent.conf"
     ]
   }
 }
