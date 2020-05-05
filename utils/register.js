@@ -24,7 +24,7 @@ module.exports.registerAgent = function() {
                     1. Server url is incorrect
                     2. Server is down
                     3. Agent Key is forbidden for use
-                        in this case delete the key folder and rerun the application`);
+                        in this case please change the AGENT_KEY in kaholo-agent.conf`);
                     
                     winston.error(err);
                     winston.info("Exiting process");
