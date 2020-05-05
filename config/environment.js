@@ -20,13 +20,13 @@ module.exports = async function(){
     let configLoadResult;
     if(defaultConfExist){
         configLoadResult = dotenv.config({path : defaultConfPath});
-    } else {
+    } else if (fs.existsSync(localConfPath)) {
         configLoadResult = dotenv.config({path: localConfPath});
     }
 
-    if (configLoadResult.error) {
+    if (configLoadResult && configLoadResult.error) {
         console.error("Could not load configuration file:");
-        throw result.error
+        throw configLoadResult.error
     }
 
     const defaultConf = {
@@ -38,6 +38,10 @@ module.exports = async function(){
         if(!process.env[key]){
             process.env[key] = defaultConf[key];
         }
+    }
+
+    if(!process.env.AGENT_KEY){
+        throw "Missing AGENT_KEY environment variabe.";
     }
 
     process.env.BASE_DIR = BASE_DIR;
