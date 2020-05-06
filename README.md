@@ -10,8 +10,9 @@ In order to install the Kaholo agent as a windows service do the following:
 - Move to repo directory
 - `npm install --production`
 - `npm install node-windows`
-- `npm run install:windows`
 - Rename `kaholo-agent.conf.example` to `kaholo-agent.conf`
+- Set configuration in `kaholo-agent.conf` 
+- `npm run install:windows`
 
 # Install as OSX service
 In order to install the Kaholo agent as a service on OSX do the following:
@@ -19,8 +20,9 @@ In order to install the Kaholo agent as a service on OSX do the following:
 - move to repo directory
 - `npm install --production`
 - `npm install node-mac`
-- `npm run install:osx`
 - Rename `kaholo-agent.conf.example` to `kaholo-agent.conf`
+- Set configuration in `kaholo-agent.conf` 
+- `npm run install:osx`
 
 # Configrution
 All configuration options can be found in `kaholo-agent.conf`.
