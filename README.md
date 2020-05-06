@@ -26,14 +26,14 @@ In order to install the Kaholo agent as a service on OSX do the following:
 - Set configuration in `kaholo-agent.conf` 
 - `npm run install:osx`
 
+### More installaion options
+For all installaion options please visit our [documentation]
+
+
 ## Configrution
 All configuration options can be found in `kaholo-agent.conf`.
 - PORT: the port for the agent to run on.
 - SERVER_URL: The Kaholo server URL.
 - AGENT_KEY: Random 32 bytes string, the uniqe indentifier for the agent
-
-## More installaion options
-For all installaion options please visit our [documentation]
-
 
 [documentation]: https://kaholo.io/blog/documents/kaholo-user-guide/installing-kaholo/installing-kaholo-agent/
