@@ -1,10 +1,12 @@
-[![][LogoImage]][website] 
 # kaholo-agent
+Used for executing Kaholo pipelines
 
-# Requirements
+## Requirements
 - NodeJS >= 10.x
 
-# Install as Windows service
+## Install
+
+### Install as Windows service
 In order to install the Kaholo agent as a windows service do the following:
 - Clone the repo
 - Move to repo directory
@@ -14,7 +16,7 @@ In order to install the Kaholo agent as a windows service do the following:
 - Set configuration in `kaholo-agent.conf` 
 - `npm run install:windows`
 
-# Install as OSX service
+### Install as OSX service
 In order to install the Kaholo agent as a service on OSX do the following:
 - clone the repo
 - move to repo directory
@@ -24,15 +26,14 @@ In order to install the Kaholo agent as a service on OSX do the following:
 - Set configuration in `kaholo-agent.conf` 
 - `npm run install:osx`
 
-# Configrution
+## Configrution
 All configuration options can be found in `kaholo-agent.conf`.
 - PORT: the port for the agent to run on.
 - SERVER_URL: The Kaholo server URL.
 - AGENT_KEY: Random 32 bytes string, the uniqe indentifier for the agent
 
-# More Options
-For all installaion options and further documentation please visit our [website]
+## More installaion options
+For all installaion options please visit our [documentation]
 
 
-
-[website]: https://kaholo.io/blog/documents/kaholo-user-guide/installing-kaholo/installing-kaholo-agent/
+[documentation]: https://kaholo.io/blog/documents/kaholo-user-guide/installing-kaholo/installing-kaholo-agent/
