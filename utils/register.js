@@ -4,7 +4,7 @@ const request = require("superagent");
 module.exports.registerAgent = function() {
     let agent = request.agent();
     return new Promise((resolve, reject) => {
-
+        
         agent
             .post(`${process.env.SERVER_URL}/api/agents/add`)
             .withCredentials()

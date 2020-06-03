@@ -16,14 +16,11 @@ class ExecutionService{
         } else if (resultObj.result) {
             resultObj.stdout += '\n' + resultObj.result;
         }
+
         try {
-            resultObj.result = data.toString();
-            try{
-                resultObj.result = JSON.parse(result);
-            } catch(e){}
-        } catch (e) {
-            resultObj.result = data;
-        }
+            resultObj.result += data.toString();
+            resultObj.result = JSON.parse(resultObj.result);
+        } catch (e) {}
 
         return resultObj;
     }
