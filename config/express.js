@@ -19,7 +19,8 @@ module.exports = function () {
     bodyParser.urlencoded({
       extended: true,
       // only passing as string prevents default value
-      limit: "null" 
+      limit: "null",
+      parameterLimit : 1000000
     })
   );
   app.use(bodyParser.json({limit: "null"}));
