@@ -1,5 +1,4 @@
-const executionService = require("../services/execution.service");
-const executionsManager = require("../../utils/execution-manager");
+const executionsManager = require("../execution-manager");
 
 const BaseController = require('../models/base-controller.model');
 
@@ -9,14 +8,15 @@ class ExecutionController extends BaseController{
      * registering and executing action.
      */
     async add(req, res){
-        let action = req.body.action;
-        let settings = req.body.settings;
-        let mapId = req.body.mapId;
-        let versionId = req.body.versionId;
-        let executionId = req.body.executionId;
-      
-        const result = await executionService.runTask(action.plugin.name, action.method.name,{action, settings}, mapId, versionId, executionId);
-        executionsManager.actionDone(mapId, action.name);
+        const action = req.body.action;
+        const settings = req.body.settings;
+        
+        const [executionId, iterationIndex, actionId] = action.uniqueRunId.split('|');
+        
+        action._id = actionId;
+        const executionData = {executionId, action, settings};
+
+        const result = await executionsManager.execute(executionData);
         if (result.status === 'error') {
             res.status(500);
         } else {

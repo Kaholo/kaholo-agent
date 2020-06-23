@@ -1,8 +1,7 @@
 const ioClient = require("socket.io-client");
 const winston = require("winston");
 
-const executionService = require("./execution.service");
-const executionsManager = require("../../utils/execution-manager");
+const executionsManager = require("../execution-manager");
 
 class SocketService {
   constructor() {
@@ -38,19 +37,12 @@ class SocketService {
     winston.log("info", "got new task");
     let action = data.action;
     let settings = data.settings;
-    let mapId = data.mapId.toString();
-    let versionId = data.versionId.toString();
-    let executionId = data.executionId.toString();
-
-    const result = await executionService.runTask(
-      action.plugin.name,
-      action.method.name,
-      { action, settings },
-      mapId,
-      versionId,
-      executionId
-    );
-    executionsManager.actionDone(mapId, action.name);
+    
+    const [executionId, iterationIndex, actionId] = action.uniqueRunId.split('|');
+    action._id = actionId;
+    const executionData = {executionId, action, settings};
+    
+    const result = await executionsManager.execute(executionData);
     winston.log("info", "emitting result to server");
     this.socket.emit(action.uniqueRunId, result);
   }
