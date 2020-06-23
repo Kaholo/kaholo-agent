@@ -37,15 +37,14 @@ class ExecutionManager{
         }
     
         return new Promise((resolve)=>{
-            let currentModule = pluginsService.plugins[pluginName];
+            const pluginConf = pluginsService.plugins[pluginName];
             let workerProcess;
     
-            if (currentModule.execProgram == 'node'){
-                workerProcess = child_process.spawn(currentModule.execProgram, [path.join(workersPath,'node.js'), currentModule.main, JSON.stringify(executionData)]);
+            if (pluginConf.execProgram == 'node'){
+                workerProcess = child_process.spawn(pluginConf.execProgram, [path.join(workersPath,'node.js'), pluginConf.main, JSON.stringify(executionData)]);
             } else {
-                workerProcess = child_process.spawn(currentModule.execProgram, [currentModule.main, JSON.stringify(executionData)]);
+                workerProcess = child_process.spawn(pluginConf.execProgram, [pluginConf.main, JSON.stringify(executionData)]);
             }
-    
     
             this.addMapExecution(executionId, action._id, workerProcess);
             workerProcess.stdout.on('data', (data) => {
