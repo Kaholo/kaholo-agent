@@ -1,14 +1,14 @@
-const winston = require("winston");
+const logger = require("../api/services/logger");
 
 const pluginsService = require("../api/services/plugins.service");
 const socketService = require("../api/services/socket.service");
 const register = require("../utils/register");
 
 module.exports = () => {
-  winston.info("Loading plugins modules...");
+  logger.info("Loading plugins modules...");
   pluginsService.loadAllInsalledPlugins().catch(console.error);
-  winston.info("Finish loading plugins");
-  winston.info("Sending key to server");
+  logger.info("Finish loading plugins");
+  logger.info("Sending key to server");
   register
     .registerAgent()
     .then(() => {

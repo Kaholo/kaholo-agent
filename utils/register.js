@@ -1,4 +1,4 @@
-const winston = require("winston");
+const logger = require("../api/services/logger");
 const request = require("superagent");
 
 module.exports.registerAgent = function() {
@@ -19,21 +19,21 @@ module.exports.registerAgent = function() {
             .set('Content-Type', 'application/json;charset=UTF-8')
             .end(function (err, res) {
                 if (err) {
-                    winston.error(
+                    logger.error(
                         `Failed connecting to server. Possible reasons are:
                     1. Server url is incorrect
                     2. Server is down
                     3. Agent Key is forbidden for use
                         in this case please change the AGENT_KEY in kaholo-agent.conf`);
                     
-                    winston.error(err);
-                    winston.info("Exiting process");
+                    logger.error(err);
+                    logger.info("Exiting process");
                     /* close program when failed connecting to the server */
                     reject();
                     process.exit();
                 }
                 else {
-                    console.log("Agent installed successfully.");
+                    logger.info("Agent installed successfully.");
                 }
                 return resolve();
             });

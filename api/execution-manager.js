@@ -47,6 +47,15 @@ class ExecutionManager{
             }
     
             this.addMapExecution(executionId, action._id, workerProcess);
+            
+            if (action.timeout || (!action.timeout && parseInt(action.timeout) !== 0)) {
+                const timeout = parseInt(action.timeout || 600000);
+                setTimeout(()=>{
+                    result.stderr = "Timeout Error"
+                    this.killAction(executionId,action._id);
+                },timeout);
+            }
+            
             workerProcess.stdout.on('data', (data) => {
                 result = this.sumResult(result, null, data);
             });
@@ -54,10 +63,15 @@ class ExecutionManager{
             workerProcess.stderr.on('data', (data) => {
                 result = this.sumResult(result, data);
             });
-    
+
             workerProcess.on('close', (code) => {
                 result.status = code === 0 ? 'success' : 'error';
                 this.actionDone(executionId, action._id);
+                
+                // SIGKILL
+                if (code === null && !result.stderr){
+                    result.stderr = "SIGKILL"
+                }
                 return resolve(result);
             }); 
         });

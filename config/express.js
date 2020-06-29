@@ -2,7 +2,9 @@ const http = require('http');
 const express = require("express");
 const bodyParser = require("body-parser");
 const expressWinston = require("express-winston");
-const winston = require("winston");
+
+const consoleTransport = require("../api/services/logger-transport");
+const logger = require("../api/services/logger");
 
 const statusApi = require("../api/routes/status.routes");
 const pluginsApi = require("../api/routes/plugins.routes");
@@ -27,23 +29,19 @@ module.exports = function () {
   app.use(
     expressWinston.logger({
       transports: [
-        new winston.transports.Console({
-          json: false,
-          colorize: true,
-        }),
+        consoleTransport
       ],
       meta: false, // optional: control whether you want to log the meta data about the request (default to true)
       msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
       expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
-      colorize: false, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+      colorize: true, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
       ignoreRoute: function (req, res) {
         return "/api/status" === (req.originalUrl || req.url);
       }, // optional: allows to skip some log messages based on request and/or response
     })
   );
-  //
+  
   // middleware to check request key
-
   app.post("*", function (req, res, next) {
     const key = req.body ? req.body.key : null;
     if (req.url === "/api/plugins/install") {
@@ -82,7 +80,7 @@ module.exports = function () {
   server.setTimeout(3600000);
 
   server.listen(process.env.PORT, () => {
-    console.log(`Running on localhost:${process.env.PORT}`);
+    logger.info(`Running on localhost:${process.env.PORT}`);
   });
 
   return server;

@@ -1,5 +1,5 @@
 const ioClient = require("socket.io-client");
-const winston = require("winston");
+const logger = require("./logger");
 
 const executionsManager = require("../execution-manager");
 
@@ -12,7 +12,7 @@ class SocketService {
    * Subscribe to agents namespace at server
    */
   subscribeToSocket() {
-    winston.log("info", "Subscribing to socket");
+    logger.log("info", "Subscribing to socket");
 
     // subscribe to namespace, pass agents' key
     this.socket = ioClient(`${process.env.SERVER_URL}/agents`, {
@@ -25,16 +25,16 @@ class SocketService {
   }
 
   onConnect(data) {
-    winston.log("info", "Socket is connected");
+    logger.log("info", "Socket is connected");
   }
 
   onDisconnect() {
-    winston.log("info", "Socket disconnected, trying to reconnect");
+    logger.log("info", "Socket disconnected, trying to reconnect");
     this.socket.open();
   }
 
   async onAddTask(data) {
-    winston.log("info", "got new task");
+    logger.log("info", "got new task");
     let action = data.action;
     let settings = data.settings;
     
@@ -43,7 +43,7 @@ class SocketService {
     const executionData = {executionId, action, settings};
     
     const result = await executionsManager.execute(executionData);
-    winston.log("info", "emitting result to server");
+    logger.log("info", "emitting result to server");
     this.socket.emit(action.uniqueRunId, result);
   }
 }
