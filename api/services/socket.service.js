@@ -1,8 +1,7 @@
 const ioClient = require("socket.io-client");
-const winston = require("winston");
+const logger = require("./logger");
 
-const executionService = require("./execution.service");
-const executionsManager = require("../../utils/execution-manager");
+const executionsManager = require("../execution-manager");
 
 class SocketService {
   constructor() {
@@ -13,7 +12,7 @@ class SocketService {
    * Subscribe to agents namespace at server
    */
   subscribeToSocket() {
-    winston.log("info", "Subscribing to socket");
+    logger.log("info", "Subscribing to socket");
 
     // subscribe to namespace, pass agents' key
     this.socket = ioClient(`${process.env.SERVER_URL}/agents`, {
@@ -26,32 +25,25 @@ class SocketService {
   }
 
   onConnect(data) {
-    winston.log("info", "Socket is connected");
+    logger.log("info", "Socket is connected");
   }
 
   onDisconnect() {
-    winston.log("info", "Socket disconnected, trying to reconnect");
+    logger.log("info", "Socket disconnected, trying to reconnect");
     this.socket.open();
   }
 
   async onAddTask(data) {
-    winston.log("info", "got new task");
+    logger.log("info", "got new task");
     let action = data.action;
     let settings = data.settings;
-    let mapId = data.mapId.toString();
-    let versionId = data.versionId.toString();
-    let executionId = data.executionId.toString();
-
-    const result = await executionService.runTask(
-      action.plugin.name,
-      action.method.name,
-      { action, settings },
-      mapId,
-      versionId,
-      executionId
-    );
-    executionsManager.actionDone(mapId, action.name);
-    winston.log("info", "emitting result to server");
+    
+    const [executionId, iterationIndex, actionId] = action.uniqueRunId.split('|');
+    action._id = actionId;
+    const executionData = {executionId, action, settings};
+    
+    const result = await executionsManager.execute(executionData);
+    logger.log("info", "emitting result to server");
     this.socket.emit(action.uniqueRunId, result);
   }
 }
