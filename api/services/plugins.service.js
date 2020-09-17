@@ -115,9 +115,7 @@ class PluginsService {
     }
 
     // Load Plugin
-    this.loadPluginDir(pluginInstallPath).catch((err) => {
-      console.error(err);
-    });
+    await this.loadPluginDir(pluginInstallPath);
   }
 
   delete(name) {
