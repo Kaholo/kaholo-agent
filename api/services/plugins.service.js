@@ -118,6 +118,12 @@ class PluginsService {
     await this.loadPluginDir(pluginInstallPath);
   }
 
+  async getAutocompleteFromFunction(pluginName, functionName, key, query) {
+    console.log(pluginName, functionName, key, query);
+    // todo call function in plugin
+    return {pluginName, functionName, key, query}
+  }
+
   delete(name) {
     return new Promise((resolve, reject) => {
       rimraf(`libs/plugins/${name}`, (err, res) => {
