@@ -1,6 +1,7 @@
 const fs = require("fs-extra");
 const path = require("path");
 const rimraf = require("rimraf");
+const child_process = require("child_process");
 
 const zip = require("../../utils/zip");
 const exec = require("../../utils/exec");
@@ -119,9 +120,23 @@ class PluginsService {
   }
 
   async getAutocompleteFromFunction(pluginName, functionName, key, query) {
-    console.log(pluginName, functionName, key, query);
-    // todo call function in plugin
-    return {pluginName, functionName, key, query}
+    const pluginConf = this.plugins[pluginName];
+    // TODO: figure out pluginSettings and actionParams
+    const actionParams = {};
+    const pluginSettings = {};
+    // TODO: pathToPlugin
+    const pathToPlugin = "??";
+    // TODO: verify 'key'
+    if (key !== process.env.AGENT_KEY) {
+      throw new Error("Invalid agent key");
+    }
+    // TODO: call function in plugin, fix paths, etc
+    let autocomplete = child_process.spawnSync("node", [
+      "-e",
+      `require(${pathToPlugin}"./app.js").${functionName}(${pluginSettings}, ${actionParams}, ${query})`,
+    ]);
+    // TODO: format autocomplete properly
+    return autocomplete;
   }
 
   delete(name) {
