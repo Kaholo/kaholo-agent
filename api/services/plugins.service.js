@@ -119,19 +119,14 @@ class PluginsService {
     await this.loadPluginDir(pluginInstallPath);
   }
 
-  async getAutocompleteFromFunction(pluginName, functionName, key, pluginSettings, actionParams, query) {
+  async getAutocompleteFromFunction(pluginName, functionName, key, query) {
     const pluginConf = this.plugins[pluginName];
 
     if (key !== process.env.AGENT_KEY) {
       throw new Error("Invalid agent key");
     }
-    // TODO: fix paths, etc, check if it's working :O
-    let autocomplete = child_process.spawnSync("node", [
-      "-e",
-      `require(${pluginConf.main}).${functionName}(${pluginSettings}, ${actionParams}, ${query})`,
-    ]);
-    // TODO: check if autocomplete is in proper format
-    return autocomplete;
+    const queryFunction = require(pluginConf.main)[functionName];
+    return queryFunction(query);
   }
 
   delete(name) {

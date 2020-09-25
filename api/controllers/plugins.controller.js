@@ -31,13 +31,11 @@ class PluginsController extends BaseController {
         req.params.pluginName,
         req.params.functionName,
         req.body.key,
-        req.body.pluginSettings, 
-        req.body.actionParams,
         req.body.query
       );
       res.status(200).json(autocomplete);
     } catch (err) {
-      console.log(error);
+      console.error(err);
       res.status(500).send(err);
     }
   }
