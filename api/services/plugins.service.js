@@ -1,7 +1,6 @@
 const fs = require("fs-extra");
 const path = require("path");
 const rimraf = require("rimraf");
-const child_process = require("child_process");
 
 const zip = require("../../utils/zip");
 const exec = require("../../utils/exec");
