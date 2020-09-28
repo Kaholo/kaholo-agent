@@ -118,13 +118,10 @@ class PluginsService {
     await this.loadPluginDir(pluginInstallPath);
   }
 
-  async getAutocompleteFromFunction(pluginName, functionName, key, query) {
+  async getAutocompleteFromFunction(pluginName, functionName, query) {
     const pluginConf = this.plugins[pluginName];
     let queryFunction;
 
-    if (key !== process.env.AGENT_KEY) {
-      throw new Error("Invalid agent key");
-    }
     if (pluginConf) {
       queryFunction = require(pluginConf.main)[functionName];
     } else {
