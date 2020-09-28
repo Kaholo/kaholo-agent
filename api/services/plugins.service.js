@@ -120,11 +120,17 @@ class PluginsService {
 
   async getAutocompleteFromFunction(pluginName, functionName, key, query) {
     const pluginConf = this.plugins[pluginName];
+    let queryFunction;
 
     if (key !== process.env.AGENT_KEY) {
       throw new Error("Invalid agent key");
     }
-    const queryFunction = require(pluginConf.main)[functionName];
+    if (pluginConf) {
+      queryFunction = require(pluginConf.main)[functionName];
+    } else {
+      throw new Error('Plugin not found!');
+    }
+    
     return queryFunction(query);
   }
 
