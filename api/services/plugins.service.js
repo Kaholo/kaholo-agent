@@ -128,7 +128,11 @@ class PluginsService {
       throw new Error('Plugin not found!');
     }
     
-    return queryFunction(query);
+    if (queryFunction) {
+      return queryFunction(query);
+    } else {
+      throw new Error('Function not found!');
+    }
   }
 
   delete(name) {
