@@ -118,6 +118,23 @@ class PluginsService {
     await this.loadPluginDir(pluginInstallPath);
   }
 
+  async getAutocompleteFromFunction(pluginName, functionName, query) {
+    const pluginConf = this.plugins[pluginName];
+    let queryFunction;
+
+    if (pluginConf) {
+      queryFunction = require(pluginConf.main)[functionName];
+    } else {
+      throw new Error('Plugin not found!');
+    }
+    
+    if (queryFunction && typeof queryFunction === 'function') {
+      return queryFunction(query);
+    } else {
+      throw new Error('Function not found!');
+    }
+  }
+
   delete(name) {
     return new Promise((resolve, reject) => {
       rimraf(`libs/plugins/${name}`, (err, res) => {
