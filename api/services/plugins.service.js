@@ -128,7 +128,7 @@ class PluginsService {
       throw new Error('Plugin not found!');
     }
     
-    if (queryFunction) {
+    if (queryFunction && typeof queryFunction === 'function') {
       return queryFunction(query);
     } else {
       throw new Error('Function not found!');
