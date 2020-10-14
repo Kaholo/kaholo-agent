@@ -118,7 +118,7 @@ class PluginsService {
     await this.loadPluginDir(pluginInstallPath);
   }
 
-  async getAutocompleteFromFunction(pluginName, functionName, query) {
+  async getAutocompleteFromFunction(pluginName, functionName, query, pluginSettings) {
     const pluginConf = this.plugins[pluginName];
     let queryFunction;
 
@@ -129,7 +129,7 @@ class PluginsService {
     }
     
     if (queryFunction && typeof queryFunction === 'function') {
-      return queryFunction(query);
+      return queryFunction(query, pluginSettings);
     } else {
       throw new Error('Function not found!');
     }
