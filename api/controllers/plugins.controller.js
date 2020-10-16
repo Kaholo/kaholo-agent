@@ -27,11 +27,13 @@ class PluginsController extends BaseController {
     logger.info("Getting autocomplete from plugin function");
     let autocomplete;
     try {
+      console.log(req.body.actionParams)
       autocomplete = await pluginsService.getAutocompleteFromFunction(
         req.params.pluginName,
         req.params.functionName,
         req.body.query,
-        req.body.pluginSettings
+        req.body.pluginSettings,
+        req.body.actionParams
       );
       res.status(200).json(autocomplete);
     } catch (err) {
