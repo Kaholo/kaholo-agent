@@ -58,3 +58,5 @@ SOURCES
 SPECS
 
 kaholo-agent.conf
+
+config/key.pm
