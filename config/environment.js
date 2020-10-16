@@ -50,12 +50,6 @@ module.exports = async function(){
     process.env.AGENT_NAME = process.env.AGENT_NAME || os.hostname().replace(".", "") + '-' + process.platform.replace(".", "");
     
     process.env.PRIVATE_IP = process.env.PRIVATE_IP || ip.address();
-    
-    try{
-        process.env.PUBLIC_IP = await publicIp.v4();
-    }catch(err){
-        process.env.PUBLIC_IP = process.env.PRIVATE_IP;
-    }
 
     createPaths();
 }
