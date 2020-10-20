@@ -5,6 +5,11 @@ const rimraf = require("rimraf");
 const zip = require("../../utils/zip");
 const exec = require("../../utils/exec");
 
+function requireUncached(module) {
+  delete require.cache[require.resolve(module)];
+  return require(module);
+}
+
 class PluginsService {
   constructor() {
     this.plugins = {};
@@ -123,13 +128,20 @@ class PluginsService {
     let queryFunction;
 
     if (pluginConf) {
-      queryFunction = require(pluginConf.main)[functionName];
+      queryFunction = requireUncached(pluginConf.main)[functionName];
     } else {
       throw new Error('Plugin not found!');
     }
 
     if (queryFunction && typeof queryFunction === 'function') {
-      return queryFunction(query, pluginSettings, actionParams);
+      let autocomplete;
+      try {
+        autocomplete = queryFunction(query, pluginSettings, actionParams);
+      } catch (error) {
+        console.error(error);
+        throw new Error(`Error in plugin: ${pluginName},  in function: ${functionName}.`);
+      }
+      return autocomplete;
     } else {
       throw new Error('Function not found!');
     }
