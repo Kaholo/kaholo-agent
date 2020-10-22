@@ -1,6 +1,7 @@
 const fs = require("fs-extra");
 const path = require("path");
 const rimraf = require("rimraf");
+const { v4: uuid4 } = require("uuid");
 
 const zip = require("../../utils/zip");
 const exec = require("../../utils/exec");
@@ -84,7 +85,7 @@ class PluginsService {
     const tmpPath = path.join(
       process.env.BASE_DIR,
       "tmp",
-      "" + new Date().getTime()
+      `${uuid4()}-${new Date().getTime()}`
     );
     await zip.extract(zipFilePath, tmpPath);
 
