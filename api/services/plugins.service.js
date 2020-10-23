@@ -1,9 +1,15 @@
 const fs = require("fs-extra");
 const path = require("path");
 const rimraf = require("rimraf");
+const { v4: uuid4 } = require("uuid");
 
 const zip = require("../../utils/zip");
 const exec = require("../../utils/exec");
+
+function requireUncached(module) {
+  delete require.cache[require.resolve(module)];
+  return require(module);
+}
 
 class PluginsService {
   constructor() {
@@ -79,7 +85,7 @@ class PluginsService {
     const tmpPath = path.join(
       process.env.BASE_DIR,
       "tmp",
-      "" + new Date().getTime()
+      `${uuid4()}-${new Date().getTime()}`
     );
     await zip.extract(zipFilePath, tmpPath);
 
@@ -116,6 +122,30 @@ class PluginsService {
 
     // Load Plugin
     await this.loadPluginDir(pluginInstallPath);
+  }
+
+  async getAutocompleteFromFunction(pluginName, functionName, query, pluginSettings, actionParams) {
+    const pluginConf = this.plugins[pluginName];
+    let queryFunction;
+
+    if (pluginConf) {
+      queryFunction = requireUncached(pluginConf.main)[functionName];
+    } else {
+      throw new Error('Plugin not found!');
+    }
+
+    if (queryFunction && typeof queryFunction === 'function') {
+      let autocomplete;
+      try {
+        autocomplete = queryFunction(query, pluginSettings, actionParams);
+      } catch (error) {
+        console.error(error);
+        throw new Error(`Error in plugin: ${pluginName},  in function: ${functionName}.`);
+      }
+      return autocomplete;
+    } else {
+      throw new Error('Function not found!');
+    }
   }
 
   delete(name) {
