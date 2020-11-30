@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowJs": true,
     "downlevelIteration": true,
     "importHelpers": true,
     "allowSyntheticDefaultImports": true,
@@ -13,7 +14,7 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "es2017",
     "typeRoots": ["node_modules/@types", "api/types"],
     "lib": ["es6", "dom"],
     "baseUrl": "./",
