@@ -4,6 +4,7 @@ project
 static_cdn/
 package-lock.json
 /.vscode
+/build
 
 # Ignore npm/yarn debug log
 npm-debug.log
