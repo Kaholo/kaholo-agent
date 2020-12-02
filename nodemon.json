@@ -1,0 +1,6 @@
+{
+    "watch": ["./api", "./workers", "./config", "./utils"],
+    "ext": ".ts,.js",
+    "ignore": [],
+    "exec": "ts-node ./app.ts"
+}
