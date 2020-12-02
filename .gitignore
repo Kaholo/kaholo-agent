@@ -2,7 +2,6 @@ project
 /.idea/
 .idea/*
 static_cdn/
-package-lock.json
 /.vscode
 /build
 
@@ -34,7 +33,6 @@ Desktop.ini
 
 # npm
 node_modules
-package-lock.json
 *.log
 *.gz
 
