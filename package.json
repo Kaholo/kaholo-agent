@@ -7,10 +7,7 @@
     "build": "rimraf ./build && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon",
-    "start": "npm run build && node ./build/app.js",
-    "install:windows": "npm run build && node ./build/service-windows.js",
-    "install:osx": "npm run build && node ./build/service-mac.js",
-    "spec": "speculate --name=kaholo-agent"
+    "start": "node ./build/app.js"
   },
   "repository": {
     "type": "git",
@@ -46,6 +43,7 @@
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-typescript": "^7.12.7",
+    "@types/amqplib": "^0.5.16",
     "@types/express": "^4.17.9",
     "@types/node": "^14.14.10",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
@@ -56,7 +54,6 @@
     "nodemon": "^2.0.6",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "speculate": "2.1.1",
     "ts-node": "^9.0.0",
     "typescript": "^4.1.2"
   },
