@@ -48,7 +48,6 @@ module.exports = async function(){
     process.env.PLUGINS_DIR_PATH = 
         process.env.NODE_ENV === "production" ? path.join(BASE_DIR, '..', 'libs', 'plugins') :  path.join(BASE_DIR, 'libs', 'plugins');
 
-    console.info(process.env.PLUGINS_DIR_PATH);
 
     process.env.AGENT_NAME = process.env.AGENT_NAME || os.hostname().replace(".", "") + '-' + process.platform.replace(".", "");
     
