@@ -39,12 +39,16 @@ class ExecutionManager{
         return new Promise((resolve)=>{
             const pluginConf = pluginsService.plugins[pluginName];
             let workerProcess;
+
+            const spawnOptions = {
+                windowsHide: true
+            };
     
-            if (pluginConf.execProgram == 'node'){
-                workerProcess = child_process.spawn(pluginConf.execProgram, [path.join(workersPath,'node.js'), pluginConf.main, JSON.stringify(executionData)]);
-            } else {
-                workerProcess = child_process.spawn(pluginConf.execProgram, [pluginConf.main, JSON.stringify(executionData)]);
-            }
+            workerProcess = child_process.spawn(
+                pluginConf.execProgram, 
+                [path.join(workersPath,'node.js'), pluginConf.main, JSON.stringify(executionData)],
+                spawnOptions
+            );
     
             this.addMapExecution(executionId, action._id, workerProcess);
             
