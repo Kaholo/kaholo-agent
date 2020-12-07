@@ -10,8 +10,7 @@ describe("Plugins tests", () => {
     it("should return list of plugins", async () => {
       const { body, statusCode } = await request.post(`/plugins/`);
       expect(statusCode).toBe(200);
-      // TODO: write a proper test with installing plugins
-      // https://kaholo.atlassian.net/browse/KAH-958 raised
+      // TODO: [KAH-958] write a proper test with installing plugins first
       expect(body).toBeTruthy();
     });
   });
