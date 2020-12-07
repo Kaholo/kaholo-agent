@@ -6,10 +6,11 @@ describe("Plugins tests", () => {
   beforeEach(() => {
     request = configureSuperTest(supertest);
   });
-  describe("POST /", () => {
+  describe("POST /api/plugins", () => {
     it("should return list of plugins", async () => {
-      const { body, statusCode } = await request.post(`/plugins/upload`);
+      const { body, statusCode } = await request.post(`/plugins/`);
       expect(statusCode).toBe(200);
+      // TODO: write a proper test with installing plugins
       expect(body).toBeTruthy();
     });
   });

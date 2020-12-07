@@ -14,7 +14,6 @@ module.exports = {
     bail: true,
     runner: "jest-runner",
     testRunner: "jest-circus/runner",
-    globals: {
-    }
+    globals: {}
   };
   
