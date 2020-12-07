@@ -10,7 +10,7 @@ module.exports = {
     },
     projects: ["./tests"],
     collectCoverage: false,
-    forceExit: true,
+    forceExit: false,
     bail: true,
     runner: "jest-runner",
     testRunner: "jest-circus/runner",

@@ -11,6 +11,7 @@ describe("Plugins tests", () => {
       const { body, statusCode } = await request.post(`/plugins/`);
       expect(statusCode).toBe(200);
       // TODO: write a proper test with installing plugins
+      // https://kaholo.atlassian.net/browse/KAH-958 raised
       expect(body).toBeTruthy();
     });
   });
