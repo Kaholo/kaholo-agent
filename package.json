@@ -4,7 +4,7 @@
   "description": "Agent for Kaholo",
   "main": "app.ts",
   "scripts": {
-    "build": "rimraf ./build && tsc",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" rimraf ./build && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon",
     "start": "NODE_ENV=\"production\" node build/app.js"
