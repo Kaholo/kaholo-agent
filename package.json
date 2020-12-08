@@ -4,13 +4,17 @@
   "description": "Agent for Kaholo",
   "main": "app.ts",
   "scripts": {
-    "build": "NODE_ENV=\"production\" rimraf ./build && tsc",
+    "build": "rimraf ./build && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon",
+<<<<<<< HEAD
     "start": "npm run build && node ./build/app.js",
     "install:windows": "npm run build && node ./build/service-windows.js",
     "install:osx": "npm run build && node ./build/service-mac.js",
     "spec": "speculate --name=kaholo-agent"
+=======
+    "start": "node ./build/app.js"
+>>>>>>> parent of 479e59d... Fix paths
   },
   "repository": {
     "type": "git",
