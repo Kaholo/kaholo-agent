@@ -7,6 +7,5 @@ module.exports = {
     extends: ["plugin:@typescript-eslint/recommended", "prettier/@typescript-eslint", "plugin:prettier/recommended"],
     rules: {
         quotes: ["error", "double"],
-        avoidEscape: false,
     },
 };
