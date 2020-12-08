@@ -8,13 +8,19 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 50eeef1... Fix for separate build process
     "start": "npm run build && node ./build/app.js",
     "install:windows": "npm run build && node ./build/service-windows.js",
     "install:osx": "npm run build && node ./build/service-mac.js",
     "spec": "speculate --name=kaholo-agent"
+<<<<<<< HEAD
 =======
     "start": "node ./build/app.js"
 >>>>>>> parent of 479e59d... Fix paths
+=======
+>>>>>>> parent of 50eeef1... Fix for separate build process
   },
   "repository": {
     "type": "git",
