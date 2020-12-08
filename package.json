@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "start:dev": "nodemon",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,6 +23,9 @@
 >>>>>>> parent of 095af7d... Merge pull request #50 from Kaholo/task/KAH-939
 =======
     "start": "nodemon",
+=======
+    "start": "node app.js",
+>>>>>>> parent of fa79b9d... Add typescript config
     "install:windows": "node service-windows.js",
     "install:osx": "node service-mac.js",
 >>>>>>> parent of 8aa1963... Typescript config fixed
@@ -63,6 +67,7 @@
   },
   "devDependencies": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "speculate": "1.7.4"
 =======
     "@babel/cli": "^7.8.4",
@@ -82,6 +87,9 @@
 =======
     "ts-node": "^9.0.0"
 >>>>>>> parent of 8aa1963... Typescript config fixed
+=======
+    "speculate": "1.7.4"
+>>>>>>> parent of fa79b9d... Add typescript config
   },
   "spec": {
     "nodeVersion": "> 10.13.0",
