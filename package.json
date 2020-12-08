@@ -5,47 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "start:dev": "nodemon",
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of 50eeef1... Fix for separate build process
-    "start": "npm run build && node ./build/app.js",
-    "install:windows": "npm run build && node ./build/service-windows.js",
-    "install:osx": "npm run build && node ./build/service-mac.js",
-=======
     "start": "node app.js",
     "install:windows": "node service-windows.js",
     "install:osx": "node service-mac.js",
->>>>>>> parent of 095af7d... Merge pull request #50 from Kaholo/task/KAH-939
-=======
-    "start": "nodemon",
-=======
-    "start": "node app.js",
->>>>>>> parent of fa79b9d... Add typescript config
-    "install:windows": "node service-windows.js",
-    "install:osx": "node service-mac.js",
->>>>>>> parent of 8aa1963... Typescript config fixed
-=======
-    "start": "nodemon",
-=======
-    "start": "node app.js",
->>>>>>> parent of df1adfe... Add typescript config
-    "install:windows": "node service-windows.js",
-    "install:osx": "node service-mac.js",
->>>>>>> parent of df48276... Typescript config fixed
     "spec": "speculate --name=kaholo-agent"
-<<<<<<< HEAD
-=======
-    "start": "node ./build/app.js"
->>>>>>> parent of 479e59d... Fix paths
-=======
->>>>>>> parent of 50eeef1... Fix for separate build process
   },
   "repository": {
     "type": "git",
@@ -76,38 +39,6 @@
     "winston": "3.3.3"
   },
   "devDependencies": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "speculate": "1.7.4"
-=======
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-typescript": "^7.9.0",
-    "@types/node": "^14.0.5",
-    "typescript": "^3.9.3",
-    "nodemon": "^2.0.6",
-    "rimraf": "^3.0.2",
-    "speculate": "1.7.4",
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "ts-node": "^9.0.0",
-    "tslint": "^6.1.3",
-    "typescript": "^3.9.3"
->>>>>>> parent of b2f60d1... Add package-lock and update package versions
-=======
-    "ts-node": "^9.0.0"
->>>>>>> parent of 8aa1963... Typescript config fixed
-=======
-    "speculate": "1.7.4"
->>>>>>> parent of fa79b9d... Add typescript config
-=======
-    "ts-node": "^9.0.0"
->>>>>>> parent of df48276... Typescript config fixed
-=======
-    "speculate": "1.7.4"
->>>>>>> parent of df1adfe... Add typescript config
   },
   "spec": {
     "nodeVersion": "> 10.13.0",
