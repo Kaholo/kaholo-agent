@@ -5,7 +5,7 @@ const bootstrap = require("./utils/bootstrap");
 
 enviormentConfig().then(()=>{
     return expressConfig();
-}).then((serevr)=>{
+}).then(()=>{
     bootstrap();
 })
 

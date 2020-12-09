@@ -2,13 +2,10 @@
   "name": "kaholo-agent",
   "version": "1.3.5",
   "description": "Agent for Kaholo",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "install:windows": "node service-windows.js",
-    "install:osx": "node service-mac.js",
-    "spec": "speculate --name=kaholo-agent"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
