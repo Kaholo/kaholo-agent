@@ -3,9 +3,6 @@ const expressConfig = require('./config/express');
 
 const bootstrap = require("./utils/bootstrap");
 
-enviormentConfig().then(()=>{
-    return expressConfig();
-}).then(()=>{
-    bootstrap();
-})
-
+await enviormentConfig();
+expressConfig();
+bootstrap();
