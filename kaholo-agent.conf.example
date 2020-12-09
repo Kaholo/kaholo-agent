@@ -1,3 +1,8 @@
 PORT=8090
 SERVER_URL=http://localhost:3000
 AGENT_KEY=
+AMQP_HOST=localhost
+AMQP_PORT=5671
+AMQP_USER=twiddlebug
+AMQP_PASSWORD=kaholo123
+AMQP_RESULT_QUEUE=results_queue
