@@ -5,10 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest --runInBand tests/*",
-    "install:windows": "node service-windows.js",
-    "install:osx": "node service-mac.js",
-    "spec": "speculate --name=kaholo-agent"
+    "test": "jest --runInBand tests/*"
   },
   "repository": {
     "type": "git",
@@ -44,14 +41,5 @@
     "jest-circus": "^26.6.3",
     "jest-environment-node": "^26.6.2",
     "supertest": "^6.0.1"
-  },
-  "spec": {
-    "nodeVersion": "> 10.13.0",
-    "post": [
-      "mkdir -p /etc/kaholo-agent",
-      "if [ ! -f /etc/kaholo-agent/kaholo-agent.conf ]; then",
-      "cp /usr/lib/kaholo-agent/kaholo-agent.conf.example /etc/kaholo-agent/kaholo-agent.conf",
-      "fi"
-    ]
   }
 }
