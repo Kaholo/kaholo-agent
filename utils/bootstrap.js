@@ -15,8 +15,10 @@ module.exports = async () => {
   await register.registerAgent();
   logger.info("Agent registered");
   logger.info("Connecting to AMQP");
-  await amqpService.connect();
-  logger.info("AMQP connected");
+  await amqpService.connectToResults();
+  logger.info("Connected to results queue");
+  await amqpService.connectToActions();
+  logger.info("Connected to actions queue");
   logger.info("Subscribing to websocket");
   socketService.subscribeToSocket();
   logger.info("Websocket connction estabilished");

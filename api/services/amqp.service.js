@@ -1,50 +1,60 @@
 const { connect } = require('amqplib');
+const fs = require("fs");
 
-const connection, channel;
+const VHOST_RESULTS = 'results';
+const VHOST_ACTIONS = 'actions';
+let connection = {}, channel = {};
 
 const opts = {
-    cert: fs.readFileSync('clientcert.pem'),
-    key: fs.readFileSync('clientkey.pem'),
-    passphrase: 'MySecretPassword',
-    ca: [fs.readFileSync('cacert.pem')]
+    rejectUnauthorized: false,
+    cert: fs.readFileSync("./config/certs/client_certificate.pem"),
+    key: fs.readFileSync("./config/certs/client_key.pem")
 };
  
-async function amqpConnect() {
-    const conn = await connect(`amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}`, opts);
+async function connectToAMQP(vhost) {
+    const conn = await connect(`amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`, opts);
     if (conn) {
-        connection = conn;
+        connection[vhost] = conn;
     }
     return conn;
 }
 
-async function createChannel() {
-    const ch = await connection.createChannel();
+async function connectToActions() {
+    return amqpConnect(VHOST_ACTIONS);
+}
+
+async function connectToResults() {
+    return amqpConnect(VHOST_RESULTS);
+}
+
+async function createChannel(vhost) {
+    const ch = await connection[vhost].createChannel();
     if (ch) {
-        channel = ch;
+        channel[vhost] = ch;
     }
     return ch;
 }
 
-function checkIfQueueExists(queue) {
-    return connection.checkQueue(queue);
+async function checkIfQueueExists(queue, vhost) {
+    return channel[vhost].checkQueue(queue);
 }
 
 async function sendToQueue(queue, message, opts = {}) {
     return channel.sendToQueue(queue, message, opts);
 }
 
-function consumeQueue(queue, cb, opts = []) {
-    const queue = await checkIfQueueExists(queue);
-    if (queue) {
-        return channel.consumeQueue(queue, (msg) => cb(msg, () => channel.ack(msg)), opts);
+async function consumeQueue(queue, vhost, cb, opts = []) {
+    const exists = await checkIfQueueExists(queue, vhost);
+    if (exists) {
+        return channel[vhost].consumeQueue(queue, cb, opts);
     }
     throw new Error(`Agent queue ${queue} does not exist!`);
 }
 
-async function connect() {
-    const conn = await amqpConnect();
+async function amqpConnect(vhost) {
+    const conn = await connectToAMQP(vhost);
     if (conn) {
-        const ch = await createChannel();
+        const ch = await createChannel(vhost);
         if (ch) {
             return ch;
         }
@@ -55,7 +65,10 @@ async function connect() {
 }
 
 module.exports = {
-    connect,
+    connectToActions,
+    connectToResults,
     sendToQueue,
-    consumeQueue
+    consumeQueue,
+    VHOST_RESULTS,
+    VHOST_ACTIONS
 }
