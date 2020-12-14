@@ -4,8 +4,8 @@
   "description": "Agent for Kaholo",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "jest --runInBand tests/unit-tests/*"
   },
   "repository": {
     "type": "git",
@@ -36,14 +36,10 @@
     "uuid": "8.3.1",
     "winston": "3.3.3"
   },
-  "devDependencies": {},
-  "spec": {
-    "nodeVersion": "> 10.13.0",
-    "post": [
-      "mkdir -p /etc/kaholo-agent",
-      "if [ ! -f /etc/kaholo-agent/kaholo-agent.conf ]; then",
-      "cp /usr/lib/kaholo-agent/kaholo-agent.conf.example /etc/kaholo-agent/kaholo-agent.conf",
-      "fi"
-    ]
+  "devDependencies": {
+    "jest": "^26.6.3",
+    "jest-circus": "^26.6.3",
+    "jest-environment-node": "^26.6.2",
+    "supertest": "^6.0.1"
   }
 }

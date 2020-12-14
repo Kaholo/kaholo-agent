@@ -5,11 +5,11 @@ class AmqpService {
     VHOST_RESULTS = "results";
     VHOST_ACTIONS = "actions";
 
-    #connection = {};
-    #channel = {};
-    #consumerTag = {};
+    connection = {};
+    channel = {};
+    consumerTag = {};
 
-    #opts = {
+    opts = {
         rejectUnauthorized: false,
         cert: fs.readFileSync("./config/certs/client_certificate.pem"),
         key: fs.readFileSync("./config/certs/client_key.pem")
@@ -17,29 +17,29 @@ class AmqpService {
 
     constructor() {}
     
-    async #connectToAMQP(vhost) {
+    async connectToAMQP(vhost) {
         const connection = await connect(
             `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
-            this.#opts
+            this.opts
         );
         if (connection) {
-            this.#connection[vhost] = connection;
+            this.connection[vhost] = connection;
         }
         return connection;
     }
 
-    async #createChannel(vhost) {
-        const channel = await this.#connection[vhost].createChannel();
+    async createChannel(vhost) {
+        const channel = await this.connection[vhost].createChannel();
         if (channel) {
-            this.#channel[vhost] = channel;
+            this.channel[vhost] = channel;
         }
         return channel;
     }
 
-    async #amqpConnect(vhost) {
-        const connection = await this.#connectToAMQP(vhost);
+    async amqpConnect(vhost) {
+        const connection = await this.connectToAMQP(vhost);
         if (connection) {
-            const channel = await this.#createChannel(vhost);
+            const channel = await this.createChannel(vhost);
             if (channel) {
                 return channel;
             }
@@ -49,34 +49,34 @@ class AmqpService {
         }
     }
 
-    async #checkIfQueueExists(queue, vhost) {
-        return this.#channel[vhost].checkQueue(queue);
+    async checkIfQueueExists(queue, vhost) {
+        return this.channel[vhost].checkQueue(queue);
     }
 
     async connectToActions() {
-        return this.#amqpConnect(this.VHOST_ACTIONS);
+        return this.amqpConnect(this.VHOST_ACTIONS);
     }
 
     async connectToResults() {
-        return this.#amqpConnect(this.VHOST_RESULTS);
+        return this.amqpConnect(this.VHOST_RESULTS);
     }
 
     async unsubscribe(vhost, queue) {
-        if (!this.#consumerTag[vhost + queue]) {
+        if (!this.consumerTag[vhost + queue]) {
             throw new Error("Cannot unsubscribe from queue with undefined consumer");
         }
-        return this.#channel[vhost].cancel(this.#consumerTag[vhost + queue]);
+        return this.channel[vhost].cancel(this.consumerTag[vhost + queue]);
     }
 
     async sendToQueue(queue, vhost, message, opts = {}) {
-        return this.#channel[vhost].sendToQueue(queue, message, opts);
+        return this.channel[vhost].sendToQueue(queue, message, opts);
     }
 
     async consumeQueue(queue, vhost, cb, opts = []) {
-        const exists = await this.#checkIfQueueExists(queue, vhost);
+        const exists = await this.checkIfQueueExists(queue, vhost);
         if (exists) {
-            this.#consumerTag[vhost + queue] = await this.#channel[vhost].consumeQueue(queue, cb, opts);
-            return this.#consumerTag[vhost + queue];
+            this.consumerTag[vhost + queue] = await this.channel[vhost].consumeQueue(queue, cb, opts);
+            return this.consumerTag[vhost + queue];
         }
         throw new Error(`Agent queue ${queue} does not exist!`);
     }
