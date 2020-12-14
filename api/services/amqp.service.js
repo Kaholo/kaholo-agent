@@ -1,32 +1,37 @@
 const { connect } = require("amqplib");
 const fs = require("fs");
 
-let connection = {}, channel = {}, consumerTag = {};
-
-const opts = {
-    rejectUnauthorized: false,
-    cert: fs.readFileSync("./config/certs/client_certificate.pem"),
-    key: fs.readFileSync("./config/certs/client_key.pem")
-};
-
 class AmqpService {
     VHOST_RESULTS = "results";
     VHOST_ACTIONS = "actions";
 
+    #connection = {};
+    #channel = {};
+    #consumerTag = {};
+
+    #opts = {
+        rejectUnauthorized: false,
+        cert: fs.readFileSync("./config/certs/client_certificate.pem"),
+        key: fs.readFileSync("./config/certs/client_key.pem")
+    };
+
     constructor() {}
     
     async #connectToAMQP(vhost) {
-        const conn = await connect(`amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`, opts);
+        const conn = await connect(
+            `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
+            this.#opts
+        );
         if (conn) {
-            connection[vhost] = conn;
+            this.#connection[vhost] = conn;
         }
         return conn;
     }
 
     async #createChannel(vhost) {
-        const ch = await connection[vhost].createChannel();
+        const ch = await this.#connection[vhost].createChannel();
         if (ch) {
-            channel[vhost] = ch;
+            this.#channel[vhost] = ch;
         }
         return ch;
     }
@@ -45,7 +50,7 @@ class AmqpService {
     }
 
     async #checkIfQueueExists(queue, vhost) {
-        return channel[vhost].checkQueue(queue);
+        return this.#channel[vhost].checkQueue(queue);
     }
 
     async connectToActions() {
@@ -57,21 +62,21 @@ class AmqpService {
     }
 
     async unsubscribe(vhost, queue) {
-        if (!consumerTag[vhost + queue]) {
+        if (!this.#consumerTag[vhost + queue]) {
             throw new Error("Cannot unsubscribe from queue with undefined consumer");
         }
-        return channel[vhost].cancel(consumerTag[vhost + queue]);
+        return this.#channel[vhost].cancel(this.#consumerTag[vhost + queue]);
     }
 
     async sendToQueue(queue, vhost, message, opts = {}) {
-        return channel[vhost].sendToQueue(queue, message, opts);
+        return this.#channel[vhost].sendToQueue(queue, message, opts);
     }
 
     async consumeQueue(queue, vhost, cb, opts = []) {
         const exists = await this.#checkIfQueueExists(queue, vhost);
         if (exists) {
-            consumerTag[vhost + queue] = await channel[vhost].consumeQueue(queue, cb, opts);
-            return consumerTag[vhost + queue];
+            this.#consumerTag[vhost + queue] = await this.#channel[vhost].consumeQueue(queue, cb, opts);
+            return this.#consumerTag[vhost + queue];
         }
         throw new Error(`Agent queue ${queue} does not exist!`);
     }
