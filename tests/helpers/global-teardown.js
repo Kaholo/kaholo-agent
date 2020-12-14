@@ -1,5 +1,6 @@
 module.exports = async () => {
-    await new Promise((resolve) => {
-        global.agent.close(resolve);
-    });
+  await new Promise((resolve) => {
+    // TODO: handle bigbird mock for integration tests
+    // global.agent.close(resolve);
+  });
 };

@@ -1,5 +1,6 @@
 const { startAgent } = require("../../app");
 
 module.exports = async () => {
-  global.agent = await startAgent();
+  // TODO: handle bigbird mock for integration tests
+  // global.agent = await startAgent();
 };

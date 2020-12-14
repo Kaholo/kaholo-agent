@@ -1,5 +1,5 @@
 const supertest = require("supertest");
-const { configureSuperTest } = require("./helpers/supertest.wrapper");
+const { configureSuperTest } = require("../helpers/supertest.wrapper");
 
 describe("Plugins tests", () => {
   let request;
