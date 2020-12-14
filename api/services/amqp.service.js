@@ -49,11 +49,11 @@ class AmqpService {
     }
 
     async connectToActions() {
-        return this.#amqpConnect(VHOST_ACTIONS);
+        return this.#amqpConnect(this.VHOST_ACTIONS);
     }
 
     async connectToResults() {
-        return this.#amqpConnect(VHOST_RESULTS);
+        return this.#amqpConnect(this.VHOST_RESULTS);
     }
 
     async unsubscribe(vhost, queue) {
