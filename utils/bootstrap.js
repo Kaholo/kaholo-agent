@@ -7,7 +7,7 @@ const register = require("../utils/register");
 
 const executionQueueWorker = require("../api/workers/execution-queue.worker");
 
-module.exports = async () => {
+const startAgent = async () => {
   logger.info("Loading plugins modules...");
   try {
     await pluginsService.loadAllInsalledPlugins();
@@ -29,3 +29,7 @@ module.exports = async () => {
   await executionQueueWorker();
   logger.info("Started processing execution queue");
 };
+
+startAgent();
+
+module.exports = { startAgent };
