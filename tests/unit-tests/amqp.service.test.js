@@ -1,11 +1,10 @@
 const amqpService = require("../../api/services/amqp.service");
+const amqplibMock = require("../../__mocks__/amqplib");
 
 describe("amqp service test", () => {
-  it("should send message to queue", async () => {
-      // sendToQueue(queue, vhost, message, opts = {})
-    const spy = jest.spyOn(amqpService, "sendToQueue");
-    const message = amqpService.sendToQueue.sendToQueue(queue, vhost, message, opts = {});
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
+  it("should connect to actions queue and return channel", async () => {
+    const channel = await amqpService.connectToActions();
+    expect(amqplibMock.createChannelSpy).toHaveBeenCalled();
+    expect(channel).toBeTruthy();
   });
 });
