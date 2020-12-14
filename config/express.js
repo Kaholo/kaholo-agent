@@ -80,7 +80,7 @@ module.exports = function () {
   server.setTimeout(3600000);
 
   server.listen(process.env.PORT, () => {
-    logger.info(`Running on localhost:${process.env.PORT}`);
+    logger.info(`Listening on localhost:${process.env.PORT}`);
   });
 
   return server;
