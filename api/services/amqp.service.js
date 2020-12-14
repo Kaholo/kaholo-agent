@@ -18,30 +18,30 @@ class AmqpService {
     constructor() {}
     
     async #connectToAMQP(vhost) {
-        const conn = await connect(
+        const connection = await connect(
             `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
             this.#opts
         );
-        if (conn) {
-            this.#connection[vhost] = conn;
+        if (connection) {
+            this.#connection[vhost] = connection;
         }
-        return conn;
+        return connection;
     }
 
     async #createChannel(vhost) {
-        const ch = await this.#connection[vhost].createChannel();
-        if (ch) {
-            this.#channel[vhost] = ch;
+        const channel = await this.#connection[vhost].createChannel();
+        if (channel) {
+            this.#channel[vhost] = channel;
         }
-        return ch;
+        return channel;
     }
 
     async #amqpConnect(vhost) {
-        const conn = await this.#connectToAMQP(vhost);
-        if (conn) {
-            const ch = await this.#createChannel(vhost);
-            if (ch) {
-                return ch;
+        const connection = await this.#connectToAMQP(vhost);
+        if (connection) {
+            const channel = await this.#createChannel(vhost);
+            if (channel) {
+                return channel;
             }
             throw new Error("Could not create AMQP channel!");
         } else {
