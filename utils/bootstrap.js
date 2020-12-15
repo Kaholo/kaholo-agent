@@ -30,4 +30,4 @@ async function bootstrap() {
   logger.info("Started processing execution queue");
 };
 
-module.exports = { bootstrap };
+module.exports = bootstrap;
