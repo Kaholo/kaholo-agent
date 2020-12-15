@@ -75,7 +75,7 @@ class AmqpService {
     async consumeQueue(queue, vhost, cb, opts = []) {
         const exists = await this.checkIfQueueExists(queue, vhost);
         if (exists) {
-            this.consumerTag[vhost + queue] = await this.channel[vhost].consumeQueue(queue, cb, opts);
+            this.consumerTag[vhost + queue] = await this.channel[vhost].consume(queue, cb, opts);
             return this.consumerTag[vhost + queue];
         }
         throw new Error(`Agent queue ${queue} does not exist!`);
