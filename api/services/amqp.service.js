@@ -36,11 +36,6 @@ class AmqpService {
         return channel;
     }
 
-    async assertQueue(vhost, queue) {
-        await this.channel[vhost].assertQueue(queue);
-      }
-    
-
     async amqpConnect(vhost) {
         const connection = await this.connectToAMQP(vhost);
         if (connection) {
