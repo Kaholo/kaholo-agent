@@ -11,8 +11,8 @@ class AmqpService {
 
     opts = {
         rejectUnauthorized: false,
-        cert: fs.readFileSync("./config/certs/client_certificate.pem"),
-        key: fs.readFileSync("./config/certs/client_key.pem")
+        cert: fs.readFileSync(`${__dirname}/../../config/certs/client_certificate.pem`),
+        key: fs.readFileSync(`${__dirname}/../../config/certs/client_key.pem`)
     };
 
     constructor() {}

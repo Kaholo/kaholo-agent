@@ -26,8 +26,9 @@ async function bootstrap() {
   logger.info("Subscribing to websocket");
   socketService.subscribeToSocket();
   logger.info("Websocket connction estabilished");
-  await executionQueueWorker();
-  logger.info("Started processing execution queue");
+  // TODO Uncomment when Big Bird will manage queues creating
+  // await executionQueueWorker();
+  // logger.info("Started processing execution queue");
 };
 
 module.exports = bootstrap;
