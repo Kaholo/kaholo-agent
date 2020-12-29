@@ -18,6 +18,10 @@ class AmqpService {
     constructor() {}
     
     async connectToAMQP(vhost) {
+        console.log('AGENT CONNECT');
+        console.log('AGENT CONNECT');
+        console.log('AGENT CONNECT');
+        console.log(`amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`);
         const connection = await connect(
             `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
             this.opts
