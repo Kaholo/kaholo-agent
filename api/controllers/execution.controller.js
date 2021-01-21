@@ -18,7 +18,11 @@ class ExecutionController extends BaseController{
 
         const result = await executionsManager.execute(executionData);
         if (result.status === 'error') {
-            res.status(500);
+            if (result.stderr === 'Timeout Error') {
+                res.status(408);
+            } else {
+                res.status(500);
+            }
         } else {
             res.status(200);
         }
