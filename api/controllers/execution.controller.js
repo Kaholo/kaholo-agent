@@ -20,6 +20,8 @@ class ExecutionController extends BaseController{
         if (result.status === 'error') {
             if (result.stderr === 'Timeout Error') {
                 res.status(408);
+            } else if (result.stderr === 'SIGKILL') {
+                res.status(499);
             } else {
                 res.status(500);
             }
