@@ -68,13 +68,14 @@ class ExecutionManager{
                 result = this.sumResult(result, data);
             });
 
-            workerProcess.on('error', (err) => {
-                console.error('Worker failed:', err);
+            workerProcess.on('error', () => {
+                result.status = 'error';
             });
 
             workerProcess.on('close', (code) => {
-                console.info("data close", code);
-                result.status = code === 0 ? 'success' : 'error';
+                if (!result.status) {
+                    result.status = code === 0 ? 'success' : 'error';
+                }
                 this.actionDone(executionId, action._id);
                 
                 // SIGKILL
