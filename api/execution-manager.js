@@ -80,7 +80,7 @@ class ExecutionManager{
                 
                 // SIGKILL
                 if (code === null && !result.stderr){
-                    result.stderr = "SIGKILL"
+                    result.code = "SIGKILL"
                 }
                 return resolve(result);
             }); 
