@@ -68,13 +68,19 @@ class ExecutionManager{
                 result = this.sumResult(result, data);
             });
 
+            workerProcess.on('error', () => {
+                result.status = 'error';
+            });
+
             workerProcess.on('close', (code) => {
-                result.status = code === 0 ? 'success' : 'error';
+                if (!result.status) {
+                    result.status = code === 0 ? 'success' : 'error';
+                }
                 this.actionDone(executionId, action._id);
                 
                 // SIGKILL
                 if (code === null && !result.stderr){
-                    result.stderr = "SIGKILL"
+                    result.code = "SIGKILL"
                 }
                 return resolve(result);
             }); 
