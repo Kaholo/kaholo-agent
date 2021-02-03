@@ -1,4 +1,4 @@
-FROM node:10.15.0-jessie
+FROM node:14.15.2-buster
 
 # Create app directory
 WORKDIR /usr/src/app
