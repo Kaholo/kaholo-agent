@@ -1,26 +1,17 @@
 {
   "name": "kaholo-agent",
-  "version": "1.3.7",
+  "version": "2.0.0",
   "description": "Agent for Kaholo",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "install:windows": "node service-windows.js",
-    "install:osx": "node service-mac.js",
-    "spec": "speculate --name=kaholo-agent"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Kaholo/kaholo-agent.git"
+    "test": "jest --runInBand tests/unit-tests/*",
+    "dev": "NODE_ENV=dev nodemon app.js"
   },
   "author": "Kaholo team",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Kaholo/kaholo-agent/issues"
-  },
-  "homepage": "https://github.com/Kaholo/kaholo-agent#readme",
   "dependencies": {
+    "amqplib": "^0.6.0",
     "diskspace": "2.0.0",
     "dotenv": "8.2.0",
     "express": "4.17.1",
@@ -40,15 +31,17 @@
     "winston": "3.3.3"
   },
   "devDependencies": {
-    "speculate": "1.7.4"
+    "jest": "^26.6.3",
+    "jest-circus": "^26.6.3",
+    "jest-environment-node": "^26.6.2",
+    "nodemon": "2.0.4",
+    "supertest": "^6.0.1"
   },
-  "spec": {
-    "nodeVersion": "> 10.13.0",
-    "post": [
-      "mkdir -p /etc/kaholo-agent",
-      "if [ ! -f /etc/kaholo-agent/kaholo-agent.conf ]; then",
-      "cp /usr/lib/kaholo-agent/kaholo-agent.conf.example /etc/kaholo-agent/kaholo-agent.conf",
-      "fi"
+  "nodemonConfig": {
+    "ignore": [
+      "**/uploads/*",
+      "**/libs/*",
+      "**/tmp/*"
     ]
   }
 }

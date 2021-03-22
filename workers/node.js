@@ -3,6 +3,7 @@ function main(argv) {
     console.log('{error: "not enough parameters"}');
     // Invalid Argument - Either an unknown option was specified, or an option requiring a value was provided without a value.
     process.exit(9);
+    return;
   }
 
   let modulepath = argv[2];
@@ -59,8 +60,13 @@ function exit(code) {
 
 function _handleError(error) {
   console.log("Error : ", error);
-  // Uncaught Fatal Exception - There was an uncaught exception, and it was not handled by a domain or an 'uncaughtException' event handler.
+
+  switch (error.code) {
+    case "MODULE_NOT_FOUND":
+      exit(100);
+  }
   exit(1);
+  // Uncaught Fatal Exception - There was an uncaught exception, and it was not handled by a domain or an 'uncaughtException' event handler.
 }
 
 main(process.argv);

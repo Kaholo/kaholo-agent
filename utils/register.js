@@ -11,7 +11,7 @@ module.exports.registerAgent = function() {
             .send({
                 name: process.env.AGENT_NAME,
                 attributes: process.env.TAGS ? process.env.TAGS.split(',') : [],
-                url: `http://${process.env.PRIVATE_IP}:${process.env.PORT}`,
+                privateUrl: `http://${process.env.PRIVATE_IP}:${process.env.PORT}`,
                 publicUrl: `http://${process.env.PUBLIC_IP}:${process.env.PORT}`,
                 key: process.env.AGENT_KEY
             })

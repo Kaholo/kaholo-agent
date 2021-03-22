@@ -43,6 +43,9 @@ module.exports = function () {
   
   // middleware to check request key
   app.post("*", function (req, res, next) {
+    if(process.env.NODE_ENV === "test") {
+      return next();
+    }
     const key = req.body ? req.body.key : null;
     if (req.url === "/api/plugins/install") {
       return next();
@@ -79,9 +82,11 @@ module.exports = function () {
   const server = http.createServer(app);
   server.setTimeout(3600000);
 
-  server.listen(process.env.PORT, () => {
-    logger.info(`Running on localhost:${process.env.PORT}`);
+  return new Promise(resolve => {
+    server.listen(process.env.PORT, () => {
+      logger.info(`Listening on localhost:${process.env.PORT}`);
+      resolve(server)
+    });
   });
 
-  return server;
 };

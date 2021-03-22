@@ -4,6 +4,11 @@ const path = require('path');
 const pluginsService = require('./services/plugins.service');
 const workersPath = path.join(__dirname, '../workers');
 
+const ERRORS = {
+    "MODULE_NOT_FOUND": 100,
+    "KILLED": null
+}
+
 class ExecutionManager{
 
     constructor(){
@@ -39,11 +44,11 @@ class ExecutionManager{
         return new Promise((resolve)=>{
             const pluginConf = pluginsService.plugins[pluginName];
             let workerProcess;
-
+    
             const spawnOptions = {
                 windowsHide: true
             };
-    
+
             workerProcess = child_process.spawn(
                 pluginConf.execProgram, 
                 [path.join(workersPath,'node.js'), pluginConf.main, JSON.stringify(executionData)],
@@ -68,20 +73,16 @@ class ExecutionManager{
                 result = this.sumResult(result, data);
             });
 
-            workerProcess.on('error', () => {
-                result.status = 'error';
-            });
-
             workerProcess.on('close', (code) => {
-                if (!result.status) {
-                    result.status = code === 0 ? 'success' : 'error';
+                switch (code) {
+                    case ERRORS.MODULE_NOT_FOUND:
+                        result.stderr = "ENOENT";
+                    case ERRORS.KILLED:
+                        result.stderr = result.stderr || "SIGKILL";
                 }
+                result.status = code === 0 ? 'success' : 'error';
+
                 this.actionDone(executionId, action._id);
-                
-                // SIGKILL
-                if (code === null && !result.stderr){
-                    result.code = "SIGKILL"
-                }
                 return resolve(result);
             }); 
         });

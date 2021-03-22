@@ -1,3 +1,10 @@
 PORT=8090
 SERVER_URL=http://localhost:3000
 AGENT_KEY=
+AMQP_HOST=localhost
+AMQP_PORT=5671
+AMQP_USER=twiddlebugs
+AMQP_PASSWORD=twiddlebugs
+AMQP_RESULT_QUEUE=actions-outcome
+AMQP_CERT_PATH=./rabbitmq/prerequisites/certs/client_certificate.crt
+AMQP_KEY_PATH=./rabbitmq/prerequisites/certs/client_key.pem
