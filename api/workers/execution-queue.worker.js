@@ -4,6 +4,7 @@ const executionManager = require("../execution-manager");
 
 async function processRequest({ content }) {
   const executionRequest = JSON.parse(content.toString());
+  console.info(`Got message from queue, runId: ${executionRequest.runId}, method: ${executionRequest.actionMethod.name} `)
   const executionData = {
     executionId: executionRequest.runId,
     settings: executionRequest.pluginSettings,

@@ -68,7 +68,22 @@ class AmqpService {
     }
 
     async sendToQueue(queue, vhost, message, opts = {}) {
-        return this.channel[vhost].sendToQueue(queue, message, opts);
+        const connection = this.connection[vhost];
+        const confirmChannel = await connection.createConfirmChannel();
+        return new Promise((resolve,reject)=>{
+            confirmChannel.sendToQueue(queue, message, opts,
+            function(err, ok) {
+                if (err !== null){
+                    console.error(`Message failed to queue, queue '${queue}', vhost '${queue}': ${err}`);
+                    // this is temporary to imitate current behavior
+                    return resolve()
+                }
+                console.info(`Message queued, queue '${queue}', vhost '${queue}'`);
+                resolve(ok);
+            });
+        })
+        
+        // return this.channel[vhost].sendToQueue(queue, message, opts);
     }
 
     async acknowledge(msg, vhost, cb) {
