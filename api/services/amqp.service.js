@@ -1,4 +1,7 @@
 const { connect } = require("amqplib");
+
+const logger = require("./logger");
+
 class AmqpService {
     VHOST_RESULTS = "results";
     VHOST_ACTIONS = "actions";
@@ -40,7 +43,8 @@ class AmqpService {
         if (connection) {
             const channel = await this.createChannel(vhost);
             if (channel) {
-                return channel;
+                logger.info(`Rabbit successfully connected to vhost: "${vhost}"`);
+                return connection;
             }
             throw new Error("Could not create AMQP channel!");
         } else {
@@ -52,12 +56,40 @@ class AmqpService {
         return this.channel[vhost].checkQueue(queue);
     }
 
-    async connectToActions() {
-        return this.amqpConnect(this.VHOST_ACTIONS);
+    async connectAndInit(vhost, initFunction) {
+        const connection = await this.amqpConnect(vhost);
+        if (initFunction) {
+            try {
+                await initFunction();
+            } catch(error) {
+                logger.error("Error during initialization of AMQP", error);
+                await connection.close();
+                throw error;
+            }
+        }
+        connection.on("close", () => {
+            logger.error(`Lost AMQP connection with vhost: "${vhost}". Trying to reconnect in a while.`);
+            this.amqpReconnect(vhost, initFunction);
+        });
+    }
+
+    amqpReconnect(vhost, initFunction) {
+        setTimeout(async () => {
+            try {
+                await this.connectAndInit(vhost, initFunction)
+            } catch (error) {
+                logger.error(`Error during AMQP reconnect attempt with vhost: "${vhost}". Trying to reconnect in a while.`, error);
+                this.amqpReconnect(vhost, initFunction);
+            }
+        }, 10000);
+    }
+
+    async connectToActions(initFunction) {
+        await this.connectAndInit(this.VHOST_ACTIONS, initFunction)
     }
 
     async connectToResults() {
-        return this.amqpConnect(this.VHOST_RESULTS);
+        await this.connectAndInit(this.VHOST_RESULTS)
     }
 
     async unsubscribe(vhost, queue) {

@@ -6,6 +6,7 @@ module.exports = {
   connect: () =>
     Promise.resolve({
       createChannel: createChannelSpy,
+      on: () => {},
     }),
   createChannelSpy,
 };

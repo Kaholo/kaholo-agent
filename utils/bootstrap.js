@@ -29,13 +29,12 @@ async function bootstrap() {
   logger.info("Connecting to AMQP");
   await amqpService.connectToResults();
   logger.info("Connected to results queue");
-  await amqpService.connectToActions();
+  await amqpService.connectToActions(executionQueueWorker);
   logger.info("Connected to actions queue");
+  logger.info("Started processing execution queue");
   logger.info("Subscribing to websocket");
   socketService.subscribeToSocket();
   logger.info("Websocket connction estabilished");
-  await executionQueueWorker();
-  logger.info("Started processing execution queue");
 };
 
 module.exports = bootstrap;
