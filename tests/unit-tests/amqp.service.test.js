@@ -12,9 +12,8 @@ describe("amqp service test", () => {
     });
   });
   
-  it("should connect to actions queue and return channel", async () => {
-    const channel = await amqpService.connectToActions();
+  it("should connect to actions queue", async () => {
+    await amqpService.connectToActions(() => {});
     expect(amqplibMock.createChannelSpy).toHaveBeenCalled();
-    expect(channel).toBeTruthy();
   });
 });

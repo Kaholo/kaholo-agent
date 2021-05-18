@@ -1,62 +1,33 @@
 const { connect } = require("amqplib");
+
+const logger = require("./logger");
+
 class AmqpService {
     VHOST_RESULTS = "results";
     VHOST_ACTIONS = "actions";
-    RECONNECT_INTERVAL=3000
 
     connection = {};
     channel = {};
-    consumers = {};
+    consumerTag = {};
     opts = {};
 
     constructor() {}
 
     configure(opts) {
         this.opts = {
-            ...opts,
+            ...opts
         };
     }
-
-    async connectToAMQP(vhost, isReconnect) {
-        let connection;
-        try{
-            connection = await connect(
-                `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
-                this.opts
-                );
-        } catch (err){
-            if (isReconnect){
-                console.error(`[AMQP] reconnect failed '${vhost}': ${err}. Retrying...`);
-                return this.reconnectQueue(vhost);
-            }
+    
+    async connectToAMQP(vhost) {
+        const connection = await connect(
+            `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
+            this.opts
+        );
+        if (connection) {
+            this.connection[vhost] = connection;
         }
-        if (!connection)
-            return;
-        
-        connection.on("error", function (err) {
-            if (err.message !== "Connection closing") {
-                console.error("[AMQP] conn error", err.message);
-            }
-        });
-
-        connection.on("close", () => {
-            console.error(`[AMQP] reconnecting '${vhost}'`);
-            return this.reconnectQueue(vhost);
-        });
-
-        console.log(`[AMQP] connected '${vhost}'`);
-        this.connection[vhost] = connection;
-        
-        await this.createChannel(vhost)
-        this.restoreConsumers(vhost);
-        
         return connection;
-    }
-
-    async reconnectQueue(vhost){
-        setTimeout(() => {
-            this.connectToAMQP(vhost, true);
-        }, this.RECONNECT_INTERVAL);
     }
 
     async createChannel(vhost) {
@@ -67,23 +38,65 @@ class AmqpService {
         return channel;
     }
 
+    async amqpConnect(vhost) {
+        const connection = await this.connectToAMQP(vhost);
+        if (connection) {
+            const channel = await this.createChannel(vhost);
+            if (channel) {
+                logger.info(`Rabbit successfully connected to vhost: "${vhost}"`);
+                return connection;
+            }
+            throw new Error("Could not create AMQP channel!");
+        } else {
+            throw new Error("Could not connect to AMQP queue!");
+        }
+    }
+
     async checkIfQueueExists(queue, vhost) {
         return this.channel[vhost].checkQueue(queue);
     }
 
-    async connectToActions() {
-        return this.connectToAMQP(this.VHOST_ACTIONS);
+    async connectAndInit(vhost, initFunction) {
+        const connection = await this.amqpConnect(vhost);
+        if (initFunction) {
+            try {
+                await initFunction();
+            } catch(error) {
+                logger.error("Error during initialization of AMQP", error);
+                await connection.close();
+                throw error;
+            }
+        }
+        connection.on("close", () => {
+            logger.error(`Lost AMQP connection with vhost: "${vhost}". Trying to reconnect in a while.`);
+            this.amqpReconnect(vhost, initFunction);
+        });
+    }
+
+    amqpReconnect(vhost, initFunction) {
+        setTimeout(async () => {
+            try {
+                await this.connectAndInit(vhost, initFunction)
+            } catch (error) {
+                logger.error(`Error during AMQP reconnect attempt with vhost: "${vhost}". Trying to reconnect in a while.`, error);
+                this.amqpReconnect(vhost, initFunction);
+            }
+        }, 10000);
+    }
+
+    async connectToActions(initFunction) {
+        await this.connectAndInit(this.VHOST_ACTIONS, initFunction)
     }
 
     async connectToResults() {
-        return this.connectToAMQP(this.VHOST_RESULTS);
+        await this.connectAndInit(this.VHOST_RESULTS)
     }
 
     async unsubscribe(vhost, queue) {
-        if (!this.consumers[`${vhost}-${queue}`]) {
+        if (!this.consumerTag[vhost + queue]) {
             throw new Error("Cannot unsubscribe from queue with undefined consumer");
         }
-        return this.channel[vhost].cancel(this.consumers[`${vhost}-${queue}`].consumer);
+        return this.channel[vhost].cancel(this.consumerTag[vhost + queue]);
     }
 
     async sendToQueue(queue, vhost, message, opts = {}) {
@@ -105,7 +118,7 @@ class AmqpService {
                 resolve(ok);
             });
         });
-
+    
         // return this.channel[vhost].sendToQueue(queue, message, opts);
     }
 
@@ -114,45 +127,15 @@ class AmqpService {
         cb(msg);
     }
 
-    async restoreConsumers(connectionVhost) {
-        for (let consumerKey in this.consumers) {
-            const { queue, vhost, cb, opts } = this.consumers[consumerKey];
-            if(vhost !== connectionVhost) 
-                continue;
-            await this.consumeQueue(queue, vhost, cb, opts, true);
-        }
-    }
-
-    async consumeQueue(queue, vhost, cb, opts = [], isReconnect) {
-        let exists;
-        try{
-            exists = await this.checkIfQueueExists(queue, vhost);
-        } catch (err){
-            if (isReconnect){
-                console.error(`[AMQP] Reconsume failed '${vhost}'-'${queue}': ${err}. Retrying...`);
-                return setTimeout(()=>{
-                    this.consumeQueue(queue, vhost, cb, opts, true);
-                }, this.RECONNECT_INTERVAL   )
-            }
-        }
+    async consumeQueue(queue, vhost, cb, opts = []) {
+        const exists = await this.checkIfQueueExists(queue, vhost);
         if (exists) {
-            console.info(`[AMQP] Consuming '${vhost}'-'${queue}'`);
-            const consumerMapObejct = {
-                vhost, queue, cb, opts,
-                consumer: await this.channel[vhost].consume(
-                    queue,
-                    (msg) => {
-                        this.acknowledge(msg, vhost, cb);
-                    },
-                    opts
-                ),
-            };
-            this.consumers[`${vhost}-${queue}`] = consumerMapObejct;
-
-            return this.consumers[`${vhost}-${queue}`].consumer;
+            this.consumerTag[vhost + queue] = await this.channel[vhost].consume(queue, (msg) => this.acknowledge(msg, vhost, cb), opts);
+            return this.consumerTag[vhost + queue];
         }
         throw new Error(`Agent queue ${queue} does not exist!`);
     }
-}
+
+};
 
 module.exports = new AmqpService();
