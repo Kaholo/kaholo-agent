@@ -31,7 +31,7 @@ class AmqpService {
     }
 
     async createChannel(vhost) {
-        const channel = await this.connection[vhost].createChannel();
+        const channel = await this.connection[vhost].createConfirmChannel();
         if (channel) {
             this.channel[vhost] = channel;
         }
@@ -102,7 +102,8 @@ class AmqpService {
     async sendToQueue(queue, vhost, message, opts = {}) {
         const connection = this.connection[vhost];
         const parsedMsg = JSON.parse(message.toString());
-        const confirmChannel = await connection.createConfirmChannel();
+        
+        const confirmChannel = this.channel[vhost];
         return new Promise((resolve, reject) => {
             confirmChannel.sendToQueue(queue, message, opts, function (err, ok) {
                 if (err !== null) {
@@ -116,6 +117,7 @@ class AmqpService {
                     `Message queued, queue '${queue}', vhost '${queue}', runId '${parsedMsg.runId}', actionExecutionId '${parsedMsg.actionExecutionId}'`
                 );
                 resolve(ok);
+                
             });
         });
     
