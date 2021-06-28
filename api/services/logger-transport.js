@@ -6,7 +6,8 @@ const transport = new winston.transports.Console({
     winston.format.colorize(),
     winston.format.timestamp(),
     winston.format.printf(({ level, message, timestamp }) => {
-      return `${level}: ${message}`;
+      const date = new Date().toISOString();
+      return `${date}-${level}: ${message}`;
     })
   )
 })

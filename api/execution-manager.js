@@ -16,7 +16,7 @@ class ExecutionManager{
     }
 
     async execute({executionId, settings, action}) {
-        
+
         const pluginName = action.plugin.name;
 
         let result = {
@@ -24,7 +24,7 @@ class ExecutionManager{
             stderr: "",
             result: ""
         };
-        
+
         let useSettings = {};
         if(settings && settings.length){
             for (let i=0, length=settings.length; i<length; i++){
@@ -40,23 +40,23 @@ class ExecutionManager{
             settings : useSettings,
             action
         }
-    
+
         return new Promise((resolve)=>{
             const pluginConf = pluginsService.plugins[pluginName];
             let workerProcess;
-    
+
             const spawnOptions = {
                 windowsHide: true
             };
 
             workerProcess = child_process.spawn(
-                pluginConf.execProgram, 
+                pluginConf.execProgram,
                 [path.join(workersPath,'node.js'), pluginConf.main, JSON.stringify(executionData)],
                 spawnOptions
             );
-    
+
             this.addMapExecution(executionId, action._id, workerProcess);
-            
+
             if (action.timeout || (!action.timeout && parseInt(action.timeout) !== 0)) {
                 const timeout = parseInt(action.timeout || 600000);
                 setTimeout(()=>{
@@ -64,11 +64,11 @@ class ExecutionManager{
                     this.killAction(executionId,action._id);
                 },timeout);
             }
-            
+
             workerProcess.stdout.on('data', (data) => {
                 result = this.sumResult(result, null, data);
             });
-    
+
             workerProcess.stderr.on('data', (data) => {
                 result = this.sumResult(result, data);
             });
@@ -77,14 +77,16 @@ class ExecutionManager{
                 switch (code) {
                     case ERRORS.MODULE_NOT_FOUND:
                         result.stderr = "ENOENT";
+                        break;
                     case ERRORS.KILLED:
                         result.stderr = result.stderr || "SIGKILL";
+                        break;
                 }
                 result.status = code === 0 ? 'success' : 'error';
 
                 this.actionDone(executionId, action._id);
                 return resolve(result);
-            }); 
+            });
         });
     }
 
@@ -94,16 +96,19 @@ class ExecutionManager{
         }
         this.executions[executionId][actionId] = workerProcess;
     }
-    
+
     actionDone(executionId, actionId) {
         delete this.executions[executionId][actionId];
     }
-    
+
     killAction(executionId, actionId) {
         if (!this.executions.hasOwnProperty(executionId) || !this.executions[executionId].hasOwnProperty(actionId)) {
-            return ;
+            return false;
         }
+
         this.executions[executionId][actionId].kill('SIGTERM');
+
+        return true;
     }
 
     sumResult(resultObj, err, data) {

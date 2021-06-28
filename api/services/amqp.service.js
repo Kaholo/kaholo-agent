@@ -1,4 +1,4 @@
-const { connect } = require("amqplib");
+const { connect } = require("amqp-connection-manager");
 
 const logger = require("./logger");
 
@@ -10,78 +10,76 @@ class AmqpService {
     channel = {};
     consumerTag = {};
     opts = {};
+    queue = [];
 
-    constructor() {}
+    constructor() { }
 
     configure(opts) {
         this.opts = {
             ...opts
         };
     }
-    
+
     async connectToAMQP(vhost) {
-        const connection = await connect(
+        const connection = connect(
             `amqps://${process.env.AMQP_USER}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_HOST}:${process.env.AMQP_PORT}/${vhost}`,
-            this.opts
+            { connectionOptions: this.opts }
         );
+
         if (connection) {
             this.connection[vhost] = connection;
         }
+
         return connection;
     }
 
-    async createChannel(vhost) {
-        const channel = await this.connection[vhost].createChannel();
-        if (channel) {
-            this.channel[vhost] = channel;
-        }
-        return channel;
-    }
-
-    async amqpConnect(vhost) {
+    async amqpConnect(vhost, setup) {
         const connection = await this.connectToAMQP(vhost);
         if (connection) {
-            const channel = await this.createChannel(vhost);
-            if (channel) {
-                logger.info(`Rabbit successfully connected to vhost: "${vhost}"`);
-                return connection;
-            }
-            throw new Error("Could not create AMQP channel!");
+            return new Promise((resolve, reject) => {
+                connection.createChannel({
+                    json: true,
+                    setup: async channel => {
+                        if (channel) {
+                            logger.info(`Rabbit successfully connected to vhost: "${vhost}"`);
+                            this.channel[vhost] = channel;
+
+                            if (setup) {
+                                await setup();
+                            }
+                            for (const item of this.queue) {
+                                await this.sendToQueue.apply(this, item);
+                            }
+                            this.queue = [];
+
+                            resolve(connection);
+                        }
+
+                        reject();
+                    }
+                });
+            });
         } else {
             throw new Error("Could not connect to AMQP queue!");
         }
     }
 
     async checkIfQueueExists(queue, vhost) {
+        /**
+         * If the queue does not exists, the exception will be thrown.
+         * There is no way to catch that exception as it's part of the protocol:
+         * https://stackoverflow.com/questions/39088376/amqplib-how-to-safely-check-if-a-queue-exists
+         * This will also cause the connection to close, initiating the reconnection:
+         * https://www.squaremobius.net/amqp.node/channel_api.html#channel_checkQueue
+         */
         return this.channel[vhost].checkQueue(queue);
     }
 
     async connectAndInit(vhost, initFunction) {
-        const connection = await this.amqpConnect(vhost);
-        if (initFunction) {
-            try {
-                await initFunction();
-            } catch(error) {
-                logger.error("Error during initialization of AMQP", error);
-                await connection.close();
-                throw error;
-            }
-        }
+        const connection = await this.amqpConnect(vhost, initFunction);
         connection.on("close", () => {
             logger.error(`Lost AMQP connection with vhost: "${vhost}". Trying to reconnect in a while.`);
-            this.amqpReconnect(vhost, initFunction);
         });
-    }
-
-    amqpReconnect(vhost, initFunction) {
-        setTimeout(async () => {
-            try {
-                await this.connectAndInit(vhost, initFunction)
-            } catch (error) {
-                logger.error(`Error during AMQP reconnect attempt with vhost: "${vhost}". Trying to reconnect in a while.`, error);
-                this.amqpReconnect(vhost, initFunction);
-            }
-        }, 10000);
     }
 
     async connectToActions(initFunction) {
@@ -100,21 +98,29 @@ class AmqpService {
     }
 
     async sendToQueue(queue, vhost, message, opts = {}) {
-        return this.channel[vhost].sendToQueue(queue, message, opts);
+        try {
+            const result = await this.channel[vhost].sendToQueue(queue, message, opts);
+            return result;
+        } catch (error) {
+            logger.error(`Could not send message. Origin error: ${error.message}. Retrying when reconnected.`);
+            this.queue.push([queue, vhost, message, opts]);
+            throw error;
+        }
     }
 
-    async acknowledge(msg, vhost, cb) {
-        await this.channel[vhost].ack(msg);
-        cb(msg);
-    }
-
-    async consumeQueue(queue, vhost, cb, opts = []) {
+    async consumeQueue(queue, vhost, cb) {
         const exists = await this.checkIfQueueExists(queue, vhost);
         if (exists) {
-            this.consumerTag[vhost + queue] = await this.channel[vhost].consume(queue, (msg) => this.acknowledge(msg, vhost, cb), opts);
+            this.consumerTag[vhost + queue] = await this.channel[vhost].consume(queue, async (msg)=>{
+                if(msg == null){
+                    logger.error(`Recieved null message, channel closed. Trying to reconnect`);
+                    this.consumeQueue(queue, vhost,cb);
+                    return;
+                }
+                cb(msg);
+            }, {noAck: true});
             return this.consumerTag[vhost + queue];
         }
-        throw new Error(`Agent queue ${queue} does not exist!`);
     }
 
 };

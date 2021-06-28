@@ -3,16 +3,16 @@ const executionsManager = require("../execution-manager");
 const BaseController = require('../models/base-controller.model');
 
 class ExecutionController extends BaseController{
-    
+
     /**
      * registering and executing action.
      */
     async add(req, res){
         const action = req.body.action;
         const settings = req.body.settings;
-        
+
         const [executionId, iterationIndex, actionId] = action.uniqueRunId.split('|');
-        
+
         action._id = actionId;
         const executionData = {executionId, action, settings};
 
@@ -30,8 +30,13 @@ class ExecutionController extends BaseController{
      */
     async cancel(req, res){
         try {
-            executionsManager.killAction(req.body.mapId, req.body.actionId);
-            return res.status(204).send();
+            const killedAAction = executionsManager.killAction(req.body.mapId, req.body.actionId);
+
+            if (killedAAction) {
+                return res.status(204).send();
+            }
+
+            return res.status(404).send();
         } catch (error) {
             return res.status(500).send(error);
         }

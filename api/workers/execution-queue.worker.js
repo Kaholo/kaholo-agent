@@ -1,9 +1,10 @@
 const amqplib = require("../services/amqp.service");
 const executionManager = require("../execution-manager");
-
+const logger = require("../services/logger");
 
 async function processRequest({ content }) {
   const executionRequest = JSON.parse(content.toString());
+  logger.info(`Start processing action "${executionRequest.actionExecutionId}"`);
   const executionData = {
     executionId: executionRequest.runId,
     settings: executionRequest.pluginSettings,
@@ -27,11 +28,17 @@ async function processRequest({ content }) {
   executionResult.actionIndex = executionRequest.actionIndex;
   executionResult.processIndex = executionRequest.processIndex;
 
-  await amqplib.sendToQueue(
-    process.env.AMQP_RESULT_QUEUE,
-    amqplib.VHOST_RESULTS,
-    Buffer.from(JSON.stringify(executionResult))
-  );
+  try {
+    logger.info(`Sending result of action "${executionRequest.actionExecutionId}"`);
+    await amqplib.sendToQueue(
+      process.env.AMQP_RESULT_QUEUE,
+      amqplib.VHOST_RESULTS,
+      Buffer.from(JSON.stringify(executionResult))
+    );
+  } catch (error) {
+    logger.error(`Error during sending result of action "${executionRequest.actionExecutionId}"`);
+  }
+
 }
 
 module.exports = async () => {
