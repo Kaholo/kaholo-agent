@@ -19,21 +19,26 @@ module.exports.registerAgent = function() {
             .set('Content-Type', 'application/json;charset=UTF-8')
             .end(function (err, res) {
                 if (err) {
-                    logger.error(
+                    if (err.response) {
+                        console.error(err.response.text);
+                    } else if (err) {
+                        console.error(err);
+                    }
+                    console.error(
                         `Failed connecting to server. Possible reasons are:
                     1. Server url is incorrect
                     2. Server is down
                     3. Agent Key is forbidden for use
-                        in this case please change the AGENT_KEY in kaholo-agent.conf`);
-                    
-                    logger.error(err);
-                    logger.info("Exiting process");
+                    4. Agent URI is accessible only in internal network
+                        in this case please change the AGENT_KEY in kaholo-agent.conf
+                    There is probably more output above.`);
+                    console.info("Exiting process");
                     /* close program when failed connecting to the server */
                     reject();
                     process.exit();
                 }
                 else {
-                    logger.info("Agent installed successfully.");
+                    console.info("Agent installed successfully.");
                 }
                 return resolve();
             });

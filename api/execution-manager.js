@@ -21,9 +21,10 @@ class ExecutionManager{
 
         let result = {
             stdout: "",
-            stderr: "",
-            result: ""
+            stderr: [],
+            result: []
         };
+        let stopReason = "";
 
         let useSettings = {};
         if(settings && settings.length){
@@ -56,35 +57,39 @@ class ExecutionManager{
             );
 
             this.addMapExecution(executionId, action._id, workerProcess);
-
-            if (action.timeout || (!action.timeout && parseInt(action.timeout) !== 0)) {
-                const timeout = parseInt(action.timeout || 600000);
-                setTimeout(()=>{
-                    result.stderr = "Timeout Error"
+            const DEFAULT_TIMEOUT_VALUE = 600000;
+            let timeout = Number(action.timeout) || DEFAULT_TIMEOUT_VALUE;
+            timeout = timeout <= 0 ? DEFAULT_TIMEOUT_VALUE : timeout;
+            setTimeout(() => {
+                    stopReason = "Timeout Error"
                     this.killAction(executionId,action._id);
-                },timeout);
-            }
+            }, timeout);
 
             workerProcess.stdout.on('data', (data) => {
-                result = this.sumResult(result, null, data);
+                result.result.push(data);
             });
 
             workerProcess.stderr.on('data', (data) => {
-                result = this.sumResult(result, data);
+                result.stderr.push(data);
             });
 
             workerProcess.on('close', (code) => {
                 switch (code) {
                     case ERRORS.MODULE_NOT_FOUND:
-                        result.stderr = "ENOENT";
+                        stopReason = "ENOENT";
                         break;
                     case ERRORS.KILLED:
-                        result.stderr = result.stderr || "SIGKILL";
+                        stopReason = stopReason || "SIGKILL";
                         break;
                 }
                 result.status = code === 0 ? 'success' : 'error';
 
                 this.actionDone(executionId, action._id);
+                result.result = Buffer.concat(result.result).toString("utf8").trim();
+                try {
+                    result.result = JSON.parse(result.result)
+                } catch (e) {}
+                result.stderr = stopReason || Buffer.concat(result.stderr).toString("utf8").trim();
                 return resolve(result);
             });
         });
@@ -109,21 +114,6 @@ class ExecutionManager{
         this.executions[executionId][actionId].kill('SIGTERM');
 
         return true;
-    }
-
-    sumResult(resultObj, err, data) {
-        if (err) {
-            resultObj.stderr += '\n' + err;
-        } else if (resultObj.result) {
-            resultObj.stdout += '\n' + resultObj.result;
-        }
-
-        try {
-            resultObj.result += data.toString();
-            resultObj.result = JSON.parse(resultObj.result);
-        } catch (e) {}
-
-        return resultObj;
     }
 }
 

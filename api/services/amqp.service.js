@@ -10,7 +10,10 @@ class AmqpService {
     channel = {};
     consumerTag = {};
     opts = {};
-    queue = [];
+    queues = {
+        [this.VHOST_ACTIONS]: [],
+        [this.VHOST_RESULTS]: [],
+    };
 
     constructor() { }
 
@@ -47,10 +50,10 @@ class AmqpService {
                             if (setup) {
                                 await setup();
                             }
-                            for (const item of this.queue) {
+                            for (const item of this.queues[vhost]) {
                                 await this.sendToQueue.apply(this, item);
                             }
-                            this.queue = [];
+                            this.queues[vhost] = [];
 
                             resolve(connection);
                         }
@@ -103,7 +106,7 @@ class AmqpService {
             return result;
         } catch (error) {
             logger.error(`Could not send message. Origin error: ${error.message}. Retrying when reconnected.`);
-            this.queue.push([queue, vhost, message, opts]);
+            this.queues[vhost].push([queue, vhost, message, opts]);
             throw error;
         }
     }

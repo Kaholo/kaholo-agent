@@ -13,7 +13,7 @@ module.exports = {
 
     /* generates pm file to the path specific*/
     generateKey: (outputPath) => {
-        console.log(outputPath);
+        console.info(outputPath);
         const keyValue = randomValueHex(128);
         mkdirp.sync(path.dirname(outputPath));
         fs.writeFileSync(outputPath, keyValue);

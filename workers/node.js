@@ -1,6 +1,6 @@
 function main(argv) {
   if (argv.length < 4) {
-    console.log('{error: "not enough parameters"}');
+    console.error('{error: "not enough parameters"}');
     // Invalid Argument - Either an unknown option was specified, or an option requiring a value was provided without a value.
     process.exit(9);
     return;
@@ -15,7 +15,7 @@ function main(argv) {
       .then(function (res) {
         if (res instanceof Set) res = Array.from(res);
 
-        console.log(JSON.stringify(res));
+        console.info(typeof res === "object" ? JSON.stringify(res) : res);
         exit(0); // Success
       })
       .catch(_handleError);
@@ -59,7 +59,7 @@ function exit(code) {
 }
 
 function _handleError(error) {
-  console.log("Error : ", error);
+  console.error("Error : ", error);
 
   switch (error.code) {
     case "MODULE_NOT_FOUND":

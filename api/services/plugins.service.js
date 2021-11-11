@@ -107,13 +107,13 @@ class PluginsService {
     const installPluginDepsCmd = `cd ${pluginInstallPath} && npm install`;
     try {
       let result = await exec(installPluginDepsCmd);
-      console.log(`${pluginConf.name} successfully installed dependencies:`);
-      console.log(result.stdout);
+      console.info(`${pluginConf.name} successfully installed dependencies:`);
+      console.info(result.stdout);
     } catch (err) {
       if (err.error && err.stderr) {
-        console.log(`${pluginConf.name} failed to install dependencies:`);
-        console.log(err.stderr);
-        console.log(err.error);
+        console.error(`${pluginConf.name} failed to install dependencies:`);
+        console.error(err.stderr);
+        console.error(err.error);
         throw err.error;
       } else {
         throw err;

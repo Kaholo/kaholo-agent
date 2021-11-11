@@ -40,7 +40,7 @@ module.exports = function () {
       }, // optional: allows to skip some log messages based on request and/or response
     })
   );
-  
+
   // middleware to check request key
   app.post("*", function (req, res, next) {
     if(process.env.NODE_ENV === "test") {
@@ -54,7 +54,7 @@ module.exports = function () {
       return res.status(500).send("No key was provided");
     }
     if (key !== process.env.AGENT_KEY) {
-      console.log("Wrong key");
+      console.info("Wrong key");
       return res.status(500).send("Wrong key");
     }
     next();
