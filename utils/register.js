@@ -1,4 +1,3 @@
-const logger = require("../api/services/logger");
 const request = require("superagent");
 
 module.exports.registerAgent = function() {
@@ -17,7 +16,7 @@ module.exports.registerAgent = function() {
             })
             .set('Accept', 'application/json, text/plain, */*')
             .set('Content-Type', 'application/json;charset=UTF-8')
-            .end(function (err, res) {
+            .end(function (err) {
                 if (err) {
                     if (err.response) {
                         console.error(err.response.text);
@@ -32,10 +31,11 @@ module.exports.registerAgent = function() {
                     4. Agent URI is accessible only in internal network
                         in this case please change the AGENT_KEY in kaholo-agent.conf
                     There is probably more output above.`);
-                    console.info("Exiting process");
+                    const exitCode = 1;
+                    console.info(`Exiting process with exit code ${exitCode}`);
                     /* close program when failed connecting to the server */
                     reject();
-                    process.exit();
+                    process.exit(exitCode);
                 }
                 else {
                     console.info("Agent installed successfully.");
