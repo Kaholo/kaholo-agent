@@ -44,8 +44,8 @@ class PluginsController extends BaseController {
       res.status(200).json(autocomplete);
     } catch (err) {
       console.error(err);
-      const errMessage = typeof err === 'string' ? err : err.message;
-      res.status(500).json({message: errMessage});
+      const errObj = typeof err === 'string' ? new Error(err) : err;
+      res.status(500).json({message: errObj});
     }
   }
 
