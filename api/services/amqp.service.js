@@ -26,6 +26,10 @@ class AmqpService {
             { connectionOptions: this.opts }
         );
 
+        connection.on('disconnect',({err})=>{
+            console.error(`Connection Failed: ${err}`);
+        })
+
         if (connection) {
             this.connection[vhost] = connection;
         }
