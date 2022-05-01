@@ -26,11 +26,11 @@ class PluginsController extends BaseController {
   async getAutocompleteFromFunction(req, res) {
     logger.info("Getting autocomplete from plugin function");
     let autocomplete;
-    let {actionParams, pluginSettings} = req.body;
-    if(!actionParams || !Array.isArray(actionParams)) {
+    let { actionParams, pluginSettings } = req.body;
+    if (!actionParams || !Array.isArray(actionParams)) {
       actionParams = [];
     }
-    if(!pluginSettings || !Array.isArray(pluginSettings)) {
+    if (!pluginSettings || !Array.isArray(pluginSettings)) {
       pluginSettings = [];
     }
     try {
@@ -44,8 +44,8 @@ class PluginsController extends BaseController {
       res.status(200).json(autocomplete);
     } catch (err) {
       console.error(err);
-      const errMessage = typeof err === 'string' ? err : err.message;
-      res.status(500).json({message: errMessage});
+      const errMessage = typeof err === "string" ? err : err.message;
+      res.status(500).json({ message: errMessage });
     }
   }
 

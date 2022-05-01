@@ -5,9 +5,10 @@ const { v4: uuid4 } = require("uuid");
 
 const zip = require("../../utils/zip");
 const exec = require("../../utils/exec");
+const decache = require('decache');
 
 function requireUncached(module) {
-  delete require.cache[require.resolve(module)];
+  decache(module);
   return require(module);
 }
 

@@ -5,12 +5,14 @@ const multer = require("multer");
 
 const pluginsController = require("../controllers/plugins.controller");
 
-router.use(multer({ dest: './uploads/' }).single('file'));
+router.use(multer({ dest: "./uploads/" }).single("file"));
 
-router.post('/', pluginsController.list);
-router.post('/install', pluginsController.install);
-router.post('/delete', pluginsController.delete);
-router.get('/autocomplete-function/:pluginName/:functionName', pluginsController.getAutocompleteFromFunction);
-
+router.post("/", pluginsController.list);
+router.post("/install", pluginsController.install);
+router.post("/delete", pluginsController.delete);
+router.post(
+  "/autocomplete-function/:pluginName/:functionName",
+  pluginsController.getAutocompleteFromFunction
+);
 
 module.exports = router;
