@@ -2,6 +2,7 @@ const request = require("superagent");
 
 module.exports.registerAgent = function() {
     let agent = request.agent();
+    const protocol = process.env.PROTOCOL || 'http';
     return new Promise((resolve, reject) => {
         
         agent
@@ -10,8 +11,8 @@ module.exports.registerAgent = function() {
             .send({
                 name: process.env.AGENT_NAME,
                 attributes: process.env.TAGS ? process.env.TAGS.split(',') : [],
-                privateUrl: `http://${process.env.PRIVATE_IP}:${process.env.PORT}`,
-                publicUrl: `http://${process.env.PUBLIC_IP}:${process.env.PORT}`,
+                privateUrl: `${protocol}://${process.env.PRIVATE_IP}:${process.env.PORT}`,
+                publicUrl: `${protocol}://${process.env.PUBLIC_IP}:${process.env.PORT}`,
                 key: process.env.AGENT_KEY
             })
             .set('Accept', 'application/json, text/plain, */*')
