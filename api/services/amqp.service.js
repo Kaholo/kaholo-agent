@@ -15,11 +15,11 @@ class AmqpService {
         [this.VHOST_RESULTS]: [],
     };
 
-    constructor() { }
+    constructor() {}
 
     configure(opts) {
         this.opts = {
-            ...opts
+            ...opts,
         };
     }
 
@@ -42,40 +42,27 @@ class AmqpService {
             return new Promise((resolve, reject) => {
                 connection.createChannel({
                     json: true,
-                    setup: async channel => {
-                        if (channel) {
-                            logger.info(`Rabbit successfully connected to vhost: "${vhost}"`);
-                            this.channel[vhost] = channel;
+                    setup: async (channel) => {
+                        if (!channel) reject();
 
-                            if (setup) {
-                                await setup();
-                            }
-                            for (const item of this.queues[vhost]) {
-                                await this.sendToQueue.apply(this, item);
-                            }
-                            this.queues[vhost] = [];
+                        logger.info(`Rabbit successfully connected to vhost: "${vhost}"`);
+                        this.channel[vhost] = channel;
 
-                            resolve(connection);
+                        if (setup) {
+                            await setup();
                         }
+                        for (const item of this.queues[vhost]) {
+                            await this.sendToQueue.apply(this, item);
+                        }
+                        this.queues[vhost] = [];
 
-                        reject();
-                    }
+                        resolve(connection);
+                    },
                 });
             });
         } else {
             throw new Error("Could not connect to AMQP queue!");
         }
-    }
-
-    async checkIfQueueExists(queue, vhost) {
-        /**
-         * If the queue does not exists, the exception will be thrown.
-         * There is no way to catch that exception as it's part of the protocol:
-         * https://stackoverflow.com/questions/39088376/amqplib-how-to-safely-check-if-a-queue-exists
-         * This will also cause the connection to close, initiating the reconnection:
-         * https://www.squaremobius.net/amqp.node/channel_api.html#channel_checkQueue
-         */
-        return this.channel[vhost].checkQueue(queue);
     }
 
     async connectAndInit(vhost, initFunction) {
@@ -86,11 +73,11 @@ class AmqpService {
     }
 
     async connectToActions(initFunction) {
-        await this.connectAndInit(this.VHOST_ACTIONS, initFunction)
+        await this.connectAndInit(this.VHOST_ACTIONS, initFunction);
     }
 
     async connectToResults() {
-        await this.connectAndInit(this.VHOST_RESULTS)
+        await this.connectAndInit(this.VHOST_RESULTS);
     }
 
     async unsubscribe(vhost, queue) {
@@ -112,20 +99,22 @@ class AmqpService {
     }
 
     async consumeQueue(queue, vhost, cb) {
-        const exists = await this.checkIfQueueExists(queue, vhost);
-        if (exists) {
-            this.consumerTag[vhost + queue] = await this.channel[vhost].consume(queue, async (msg)=>{
-                if(msg == null){
-                    logger.error(`Recieved null message, channel closed. Trying to reconnect`);
-                    this.consumeQueue(queue, vhost,cb);
-                    return;
+        const channel = this.channel[vhost];
+        await channel.assertQueue(queue, { durable: true });
+
+        this.consumerTag[vhost + queue] = await this.channel[vhost].consume(
+            queue,
+            async (msg) => {
+                if (msg == null) {
+                    logger.warn(`Recieved null message, channel closed. Reconnecting...`);
+                    return this.connection[vhost].reconnect();
                 }
                 cb(msg);
-            }, {noAck: true});
-            return this.consumerTag[vhost + queue];
-        }
+            },
+            { noAck: true }
+        );
+        return this.consumerTag[vhost + queue];
     }
-
-};
+}
 
 module.exports = new AmqpService();

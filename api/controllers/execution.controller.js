@@ -3,28 +3,6 @@ const executionsManager = require("../execution-manager");
 const BaseController = require('../models/base-controller.model');
 
 class ExecutionController extends BaseController{
-
-    /**
-     * registering and executing action.
-     */
-    async add(req, res){
-        const action = req.body.action;
-        const settings = req.body.settings;
-
-        const [executionId, iterationIndex, actionId] = action.uniqueRunId.split('|');
-
-        action._id = actionId;
-        const executionData = {executionId, action, settings};
-
-        const result = await executionsManager.execute(executionData);
-        if (result.status === 'error') {
-            res.status(500);
-        } else {
-            res.status(200);
-        }
-        return res.send(JSON.stringify(result));
-    }
-
     /**
      * Killing an action
      */

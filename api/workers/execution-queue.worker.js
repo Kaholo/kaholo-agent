@@ -37,6 +37,7 @@ async function processRequest({ content }) {
     );
   } catch (error) {
     logger.error(`Error during sending result of action "${executionRequest.actionExecutionId}"`);
+    logger.error(error);
   }
 
 }

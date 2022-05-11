@@ -11,6 +11,8 @@ const ERRORS = {
   KILLED: null,
 };
 
+const DEFAULT_TIMEOUT_VALUE = 600000;
+
 class ExecutionManager {
   constructor() {
     this.executions = {};
@@ -46,7 +48,11 @@ class ExecutionManager {
       const pluginConf = pluginsService.plugins[pluginName];
       let workerProcess;
 
+      let timeout = Number(action.timeout) || DEFAULT_TIMEOUT_VALUE;
+      timeout = timeout <= 0 ? DEFAULT_TIMEOUT_VALUE : timeout;
+      
       const spawnOptions = {
+        timeout: timeout,
         windowsHide: true,
         cwd: path.join(process.cwd(), "./workspace"),
       };
@@ -66,13 +72,6 @@ class ExecutionManager {
       );
 
       this.addMapExecution(executionId, action._id, workerProcess);
-      const DEFAULT_TIMEOUT_VALUE = 600000;
-      let timeout = Number(action.timeout) || DEFAULT_TIMEOUT_VALUE;
-      timeout = timeout <= 0 ? DEFAULT_TIMEOUT_VALUE : timeout;
-      setTimeout(() => {
-        stopReason = "Timeout Error";
-        this.killAction(executionId, action._id);
-      }, timeout);
 
       workerProcess.stdout.on("data", (data) => {
         result.result.push(data);
@@ -82,7 +81,7 @@ class ExecutionManager {
         result.stderr.push(data);
       });
 
-      workerProcess.on("close", (code) => {
+      workerProcess.on("exit", (code) => {
         switch (code) {
           case ERRORS.MODULE_NOT_FOUND:
             stopReason = "ENOENT";

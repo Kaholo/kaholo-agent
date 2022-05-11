@@ -54,11 +54,11 @@ module.exports = function () {
       return res.status(500).send("No key was provided");
     }
     if (key !== process.env.AGENT_KEY) {
-      console.info("Wrong key");
       return res.status(500).send("Wrong key");
     }
     next();
   });
+  
 
   app.use((req, res, next) => {
     req.app = app;
