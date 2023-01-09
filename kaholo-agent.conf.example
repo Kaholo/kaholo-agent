@@ -1,0 +1,8 @@
+SERVER_URL=http://localhost:3000
+AGENT_KEY=
+AGENT_NAME=
+AMQP_URI_ACTIONS=amqp://twiddlebugs:twiddlebugs@localhost:5672/actions
+AMQP_URI_RESULTS=amqp://twiddlebugs:twiddlebugs@localhost:5672/results
+AMQP_RESULT_QUEUE=Action/Execution/TwiddlebugResult
+AMQP_CERT_PATH=./rabbitmq/prerequisites/certs/client_certificate.crt
+AMQP_KEY_PATH=./rabbitmq/prerequisites/certs/client_key.pem
