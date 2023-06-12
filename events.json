@@ -1,0 +1,16 @@
+[
+  {
+    "description": "Successfully cancel execution. To reproduce this flow user need to start execution manually",
+    "steps": [
+      {
+        "queue": "Twiddlebug/Execution/Cancel",
+        "event": {
+          "inputData": {
+            "mapId": "correctMapId",
+            "actionId": "correctActionId"
+          }
+        }
+      }
+    ]
+  }
+]
