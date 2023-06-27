@@ -1,0 +1,23 @@
+# FROM python:2.7.18-alpine3.11
+
+# RUN apk --no-cache add nodejs npm bash curl git docker-cli
+
+# WORKDIR /twiddlebug
+# ADD ./package.json ./package.json
+# ADD ./package-lock.json ./package-lock.json
+# RUN npm install
+
+# WORKDIR /twiddlebug/shared
+# ADD ./shared/package.json ./package.json
+# ADD ./shared/package-lock.json ./package-lock.json
+# RUN npm install
+
+# WORKDIR /twiddlebug
+# ADD ./ ./
+# RUN rm -rf ./libs
+# RUN rm -rf ./kaholo-agent.conf
+
+# CMD npm start
+
+
+# TODO: not working because alpine3.11 has support for NodeJS in version 12 only by default, we need at least version 16
