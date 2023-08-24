@@ -1,13 +1,6 @@
 const fs = require("fs");
-const unzip = require('unzipper');
+const extract = require('extract-zip');
 
-module.exports.extract = async function(zipPath, extractionPath){
-    return new Promise(resolve=>{
-        fs.createReadStream(zipPath)
-                .pipe(unzip.Extract({ path: extractionPath }))
-                .on('finish', function () {
-                    resolve();
-                })
-
-    })
+module.exports.extract = async function (zipPath, extractionPath) {
+    return extract(zipPath, {dir: extractionPath});
 }

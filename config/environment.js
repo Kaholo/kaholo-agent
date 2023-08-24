@@ -3,9 +3,7 @@ const fs = require("fs");
 const mkdirp = require('mkdirp');
 
 const os = require("os");
-const ip = require('ip');
 const dotenv = require("dotenv");
-const publicIp = require('public-ip');
 
 const BASE_DIR = path.dirname(__dirname);
 const CONF_FILE_NAME = "kaholo-agent.conf";
@@ -30,7 +28,6 @@ module.exports = async function(){
     }
 
     const defaultConf = {
-        PORT : 8090,
         SERVER_URL: "http://localhost:3000"
     };
     //apply default variables
@@ -45,17 +42,12 @@ module.exports = async function(){
     }
 
     process.env.BASE_DIR = BASE_DIR;
-    process.env.PLUGINS_DIR_PATH = path.join(BASE_DIR, 'libs', 'plugins');
+
+    if(!process.env.PLUGINS_DIR_PATH) {
+        process.env.PLUGINS_DIR_PATH = path.join(BASE_DIR, 'libs', 'plugins');
+    }
 
     process.env.AGENT_NAME = process.env.AGENT_NAME || os.hostname().replace(".", "") + '-' + process.platform.replace(".", "");
-    
-    process.env.PRIVATE_IP = process.env.PRIVATE_IP || ip.address();
-    
-    try{
-        process.env.PUBLIC_IP = await publicIp.v4();
-    }catch(err){
-        process.env.PUBLIC_IP = process.env.PRIVATE_IP;
-    }
 
     createPaths();
 }

@@ -16,7 +16,9 @@ class CustomEnvironment extends NodeEnvironment {
   runScript(script) {
     return super.runScript(script);
   }
-  handleTestEvent() {}
+
+  handleTestEvent() {
+  }
 }
 
 module.exports = CustomEnvironment;

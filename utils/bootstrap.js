@@ -1,11 +1,10 @@
-const fs = require("fs");
 const logger = require("../api/services/logger");
 
 const pluginsService = require("../api/services/plugins.service");
-const amqpService = require("../api/services/amqp.service");
-const register = require("../utils/register");
+const { eventsWorker, VHOST } = require("@kaholo/shared");
+const register = require("./register");
 
-const executionQueueWorker = require("../api/workers/execution-queue.worker");
+const initConsumers = require("../api/consumers");
 
 async function bootstrap() {
   logger.info("Loading plugins modules...");
@@ -15,22 +14,20 @@ async function bootstrap() {
     console.error(error)
   }
   logger.info("Finish loading plugins");
-  logger.info("Sending key to server");
-  await register.registerAgent();
-  logger.info("Agent registered");
   logger.info("Configuring AMQP service");
-  amqpService.configure({
-    rejectUnauthorized: false,
-    cert: fs.readFileSync(`${__dirname}/../../${process.env.AMQP_CERT_PATH}`),
-    key: fs.readFileSync(`${__dirname}/../../${process.env.AMQP_KEY_PATH}`)
-  });
-  logger.info("AMQP service configured");
-  logger.info("Connecting to AMQP");
-  await amqpService.connectToActions(executionQueueWorker);
-  logger.info("Connected to actions queue");
-  await amqpService.connectToResults();
-  logger.info("Connected to results queue");
-  logger.info("Started processing execution queue");
-};
+  await eventsWorker.init({}, [VHOST.ACTIONS, VHOST.RESULTS]);
+  logger.info("Connected to vhosts");
+
+  logger.info("Registering agent in server");
+  // This promise cannot be awaited here, because it would block the bootstrap process
+  const registerPromise = register.registerAgent();
+
+  logger.info("Configuring consumers");
+  await initConsumers();
+  logger.info("Consumers configured");
+
+  await registerPromise;
+  logger.info("Agent started");
+}
 
 module.exports = bootstrap;

@@ -1,47 +1,40 @@
-const request = require("superagent");
+const { eventsWorker, AgentTypeEnum, VHOST } = require("@kaholo/shared");
+const pluginsService = require("../api/services/plugins.service");
+const { generateKeys } = require("./crypto");
 
-module.exports.registerAgent = function() {
-    let agent = request.agent();
-    const protocol = process.env.PROTOCOL || 'http';
-    return new Promise((resolve, reject) => {
-        
-        agent
-            .post(`${process.env.SERVER_URL}/api/agents/add`)
-            .withCredentials()
-            .send({
-                name: process.env.AGENT_NAME,
-                attributes: process.env.TAGS ? process.env.TAGS.split(',') : [],
-                privateUrl: process.env.URL || `${protocol}://${process.env.PRIVATE_IP}:${process.env.PORT}`,
-                publicUrl: process.env.URL || `${protocol}://${process.env.PUBLIC_IP}:${process.env.PORT}`,
-                key: process.env.AGENT_KEY
-            })
-            .set('Accept', 'application/json, text/plain, */*')
-            .set('Content-Type', 'application/json;charset=UTF-8')
-            .end(function (err) {
-                if (err) {
-                    if (err.response) {
-                        console.error(err.response.text);
-                    } else if (err) {
-                        console.error(err);
-                    }
-                    console.error(
-                        `Failed connecting to server. Possible reasons are:
-                    1. Server url is incorrect
-                    2. Server is down
-                    3. Agent Key is forbidden for use
-                    4. Agent URI is accessible only in internal network
-                        in this case please change the AGENT_KEY in kaholo-agent.conf
-                    There is probably more output above.`);
-                    const exitCode = 1;
-                    console.info(`Exiting process with exit code ${exitCode}`);
-                    /* close program when failed connecting to the server */
-                    reject();
-                    process.exit(exitCode);
-                }
-                else {
-                    console.info("Agent installed successfully.");
-                }
-                return resolve();
-            });
-    });
-}
+module.exports.registerAgent = async function () {
+  try {
+    const { publicKey } = generateKeys();
+    if (process.env.DYNAMIC_AGENT === "true") {
+      await eventsWorker.publish({
+        vhost: VHOST.RESULTS,
+        queue: "AgentsManager/Register",
+        event: {
+          inputData: {
+            type: AgentTypeEnum.DYNAMIC,
+            key: process.env.AGENT_KEY,
+            installedPlugins: pluginsService.getVersions(),
+            publicKey,
+          },
+        },
+      });
+    } else {
+      await eventsWorker.publish({
+        vhost: VHOST.RESULTS,
+        queue: "Bigbird/Twiddlebug/Register",
+        event: {
+          inputData: {
+            key: process.env.AGENT_KEY,
+            name: process.env.AGENT_NAME,
+            installedPlugins: pluginsService.getVersions(),
+            attributes: process.env.TAGS ? process.env.TAGS.split(",") : [],
+            publicKey,
+          },
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error during registering agent", error);
+    process.exit(9);
+  }
+};

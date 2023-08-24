@@ -2,6 +2,9 @@ const child_process = require("child_process");
 const path = require("path");
 const process = require("process");
 const fs = require("fs");
+const net = require("net");
+const getPort = require("get-port");
+const { eventsWorker, VHOST, rpcRequest } = require("@kaholo/shared");
 
 const pluginsService = require("./services/plugins.service");
 const workersPath = path.join(__dirname, "../workers");
@@ -18,112 +21,236 @@ class ExecutionManager {
     this.executions = {};
   }
 
-  async execute({ executionId, settings, action }) {
+  async execute({ runId, settings, action, pipelineExecutionId }) {
     const pluginName = action.plugin.name;
+    const actionExecutionId = action.actionExecutionId;
 
     let result = {
-      stdout: "",
+      stdout: [],
       stderr: [],
       result: [],
     };
-    let stopReason = "";
+    let errorCode = "";
 
-    let useSettings = {};
-    if (settings && settings.length) {
-      for (let i = 0, length = settings.length; i < length; i++) {
-        useSettings[settings[i].name] = settings[i].value;
+    if (!pluginsService.plugins.hasOwnProperty(pluginName) || !fs.existsSync(pluginsService.plugins[pluginName]?.main)) {
+      // Install the plugin
+      let result;
+      try {
+        result = await rpcRequest({
+          requestVhost: VHOST.RESULTS,
+          requestQueue: "Bigbird/Twiddlebug/PluginInstall",
+          responseVhost: VHOST.ACTIONS,
+          requestData: {
+            agentKey: process.env.AGENT_KEY,
+            pluginName: action.plugin.name,
+            pluginVersion: action.plugin.version
+          },
+          retries: 1
+        });
+      } catch (err) {
+        throw new Error("Error during plugin installation", err);
+      }
+      
+      if (!result?.success) {
+        throw new Error("Could not install the required plugin");
       }
     }
 
-    if (!pluginsService.plugins.hasOwnProperty(pluginName)) {
-      return { error: "no such module", status: "error" };
-    }
-
     const executionData = {
-      settings: useSettings,
+      settings,
       action,
     };
+
+    const port = await getPort();
+    const server = net.createServer();
+    server.listen(port, "127.0.0.1");
 
     return new Promise((resolve) => {
       const pluginConf = pluginsService.plugins[pluginName];
       let workerProcess;
 
-      let timeout = Number(action.timeout) || DEFAULT_TIMEOUT_VALUE;
-      timeout = timeout <= 0 ? DEFAULT_TIMEOUT_VALUE : timeout;
-      
       const spawnOptions = {
-        timeout: timeout,
         windowsHide: true,
-        cwd: path.join(process.cwd(), "./workspace"),
+        cwd: process.cwd(),
+        env: {
+          // To support external agents custom env variables, and also SERVER_URL usage
+          ...process.env,
+          RESULT_PORT: port,
+          PRIVATE_IP: undefined,
+          AGENT_KEY: undefined,
+          AMQP_URI_RESULTS: undefined,
+          AMQP_URI_ACTIONS: undefined,
+          AMQP_RESULT_QUEUE: undefined,
+          PLUGINS_DIR_PATH: undefined
+        }
       };
 
       if (!fs.existsSync(spawnOptions.cwd)) {
         fs.mkdirSync(spawnOptions.cwd, { recursive: true });
       }
 
-      workerProcess = child_process.spawn(
-        pluginConf.execProgram,
-        [
-          path.join(workersPath, "node.js"),
-          pluginConf.main,
-          JSON.stringify(executionData),
-        ],
-        spawnOptions
-      );
+      try {
+        workerProcess = child_process.spawn(
+          pluginConf.execProgram,
+          [
+            path.join(workersPath, "node.js"),
+            pluginConf.main,
+            JSON.stringify(executionData),
+          ],
+          spawnOptions
+        );
+      } catch (error) {
+        console.error("child process spawn error: ", error);
+        result.status = "error";
+        result.result = error;
+        result.stdout = "";
+        result.stderr = "";
+        result.errorCode = error.code;
+        server.close();
+        return resolve(result);
+      }
 
-      this.addMapExecution(executionId, action._id, workerProcess);
+      this.addMapExecution(runId, workerProcess);
 
-      workerProcess.stdout.on("data", (data) => {
-        result.result.push(data);
+      let timeout = Number(action.timeout) || DEFAULT_TIMEOUT_VALUE;
+      timeout = timeout <= 0 ? DEFAULT_TIMEOUT_VALUE : timeout;
+      setTimeout(() => {
+        errorCode = "ETIMEOUT";
+        this.killAction(runId);
+      }, timeout);
+
+      server.on("connection", (sock) => {
+        console.info("Worker connected to tcp server");
+
+        sock.on("data", async (data) => {
+          if (result.result.push) {
+            result.result.push(data);
+
+            await eventsWorker.publish({
+              queue: "FlowControl/Twiddlebug/Result",
+              vhost: VHOST.RESULTS,
+              event: {
+                inputData: {
+                  type: "result",
+                  actionId: action.id,
+                  id: `result-${actionExecutionId}`,
+                  base64data: data.toString("base64"),
+                  pipelineExecutionId,
+                  executionLogsQueueId: `logs-${pipelineExecutionId}`,
+                }
+              }
+            });
+          } else {
+            console.error('Unexpected data from spawned worker after exit event:', data.toString());
+          }
+        });
       });
 
-      workerProcess.stderr.on("data", (data) => {
-        result.stderr.push(data);
+      workerProcess.stdout.on("data", async (data) => {
+        if (result.stdout.push) {
+          result.stdout.push(data);
+
+          await eventsWorker.publish({
+            queue: "FlowControl/Twiddlebug/Result",
+            vhost: VHOST.RESULTS,
+            event: {
+              inputData: {
+                type: "stdout",
+                actionId: action.id,
+                id: `stdout-${actionExecutionId}`,
+                base64data: data.toString("base64"),
+                pipelineExecutionId,
+                executionLogsQueueId: `logs-${pipelineExecutionId}`,
+              }
+            }
+          });
+        } else {
+          console.error('Unexpected stdout from spawned worker after exit event:', data.toString());
+        }
+      });
+
+      workerProcess.stderr.on("data", async (data) => {
+        if (result.stderr.push) {
+          result.stderr.push(data);
+
+          await eventsWorker.publish({
+            queue: "FlowControl/Twiddlebug/Result",
+            vhost: VHOST.RESULTS,
+            event: {
+              inputData: {
+                type: "stderr",
+                actionId: action.id,
+                id: `stderr-${actionExecutionId}`,
+                base64data: data.toString("base64"),
+                pipelineExecutionId,
+                executionLogsQueueId: `logs-${pipelineExecutionId}`,
+              }
+            }
+          });
+        } else {
+          console.error('Unexpected stderr from spawned worker after exit event:', data.toString());
+        }
+      });
+
+      workerProcess.on("error", error => {
+        console.error("child process error: ", error);
+        result.status = "error";
+        result.result = error;
+        result.stdout = "";
+        result.stderr = "";
+        result.errorCode = error.code;
+        server.close();
+        return resolve(result);
       });
 
       workerProcess.on("exit", (code) => {
         switch (code) {
           case ERRORS.MODULE_NOT_FOUND:
-            stopReason = "ENOENT";
+            errorCode = "ENOENT";
             break;
           case ERRORS.KILLED:
-            stopReason = stopReason || "SIGKILL";
+            errorCode = errorCode || "SIGKILL";
             break;
         }
-        result.status = code === 0 ? "success" : "error";
+        result.status =
+          code === 0
+            ? "success"
+            : errorCode === "SIGKILL"
+              ? "stopped"
+              : "error";
 
-        this.actionDone(executionId, action._id);
+        this.actionDone(runId);
         result.result = Buffer.concat(result.result).toString("utf8").trim();
         try {
           result.result = JSON.parse(result.result);
-        } catch (e) {}
-        result.stderr =
-          stopReason || Buffer.concat(result.stderr).toString("utf8").trim();
+        } catch (e) { }
+
+        result.stdout = Buffer.concat(result.stdout).toString("utf8").trim();
+        result.stderr = Buffer.concat(result.stderr).toString("utf8").trim();
+        result.errorCode = errorCode;
+        server.close();
+
         return resolve(result);
       });
     });
   }
 
-  addMapExecution(executionId, actionId, workerProcess) {
-    if (!this.executions[executionId]) {
-      this.executions[executionId] = {};
-    }
-    this.executions[executionId][actionId] = workerProcess;
+  addMapExecution(runId, workerProcess) {
+    this.executions[runId] = workerProcess;
   }
 
-  actionDone(executionId, actionId) {
-    delete this.executions[executionId][actionId];
+  actionDone(runId) {
+    delete this.executions[runId];
   }
 
-  killAction(executionId, actionId) {
+  killAction(runId) {
     if (
-      !this.executions.hasOwnProperty(executionId) ||
-      !this.executions[executionId].hasOwnProperty(actionId)
+      !this.executions.hasOwnProperty(runId)
     ) {
       return false;
     }
 
-    this.executions[executionId][actionId].kill("SIGTERM");
+    this.executions[runId].kill("SIGTERM");
 
     return true;
   }

@@ -88,7 +88,14 @@ class PluginsService {
       "tmp",
       `${uuid4()}-${new Date().getTime()}`
     );
-    await zip.extract(zipFilePath, tmpPath);
+
+    try {
+      await zip.extract(zipFilePath, tmpPath);
+    } catch (error) {
+      console.error("Error unzipping plugin ", error);
+      await fs.remove(tmpPath);
+      throw error;
+    }
 
     // Validate the plugin directory
     const pluginConf = await this.validatePluginDirectory(tmpPath);
@@ -100,14 +107,29 @@ class PluginsService {
     );
     try {
       await fs.move(tmpPath, pluginInstallPath, { overwrite: true });
+      await fs.remove(tmpPath);
     } catch (err) {
-      throw `Failed to install plugin: ${err.message}`;
+      // Need to clear both directories in case of failure as currently we're identifying by the directory if the plugin is installed
+      await fs.remove(tmpPath);
+      await fs.remove(pluginInstallPath);
+      throw `Failed to move plugin files: ${err.message}`;
     }
 
     // Install plugin dependencies
-    const installPluginDepsCmd = `cd ${pluginInstallPath} && npm install`;
+    await this.installPluginDependencies(pluginInstallPath, pluginConf);
+    
+    // Load Plugin
+    await this.loadPluginDir(pluginInstallPath);
+  }
+
+  async installPluginDependencies(pluginInstallPath, pluginConf) {
+    const installPluginDepsCmd = `cd "${pluginInstallPath}" && npm install`;
     try {
-      let result = await exec(installPluginDepsCmd);
+      const installationStart = new Date().getTime();
+      const result = await exec(installPluginDepsCmd);
+      const installationEnd = new Date().getTime();
+      console.info(`npm install took:  ${(installationEnd - installationStart) / 1000} seconds`);
+
       console.info(`${pluginConf.name} successfully installed dependencies:`);
       console.info(result.stdout);
     } catch (err) {
@@ -117,33 +139,24 @@ class PluginsService {
         console.error(err.error);
         throw err.error;
       } else {
+        console.error(err);
         throw err;
       }
     }
-
-    // Load Plugin
-    await this.loadPluginDir(pluginInstallPath);
   }
 
   async getAutocompleteFromFunction(pluginName, functionName, query, pluginSettings, actionParams) {
     const pluginConf = this.plugins[pluginName];
     let queryFunction;
 
-    if (pluginConf) {
-      queryFunction = requireUncached(pluginConf.main)[functionName];
-    } else {
+    if (!pluginConf) {
       throw new Error('Plugin not found!');
     }
-
+    
+    queryFunction = requireUncached(pluginConf.main)[functionName];
+    
     if (queryFunction && typeof queryFunction === 'function') {
-      let autocomplete;
-      try {
-        autocomplete = queryFunction(query, pluginSettings, actionParams);
-      } catch (error) {
-        console.error(error);
-        throw new Error(`Error in plugin: ${pluginName},  in function: ${functionName}.`);
-      }
-      return autocomplete;
+      return queryFunction(query, pluginSettings, actionParams)
     } else {
       throw new Error('Function not found!');
     }
@@ -151,7 +164,16 @@ class PluginsService {
 
   delete(name) {
     return new Promise((resolve, reject) => {
-      rimraf(`libs/plugins/${name}`, (err, res) => {
+      rimraf(`/twiddlebug/libs/plugins/${name}`, (err, res) => {
+        if (err) return reject(err);
+        else return resolve(res);
+      });
+    });
+  }
+
+  deleteZipFile(id) {
+    return new Promise((resolve, reject) => {
+      rimraf(`/twiddlebug/uploads/${id}.zip`, (err, res) => {
         if (err) return reject(err);
         else return resolve(res);
       });

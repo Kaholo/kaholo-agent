@@ -1,3 +1,5 @@
+const net = require("net");
+
 function main(argv) {
   if (argv.length < 4) {
     console.error('{error: "not enough parameters"}');
@@ -11,14 +13,33 @@ function main(argv) {
   try {
     let functions = require(modulepath);
     let params = JSON.parse(argv[3]);
-    functions[params.action.method.name](params.action, params.settings)
-      .then(function (res) {
-        if (res instanceof Set) res = Array.from(res);
+    const client = new net.Socket();
 
-        console.info(typeof res === "object" ? JSON.stringify(res) : res);
-        exit(0); // Success
+    const sendResult = (res) => {
+      return new Promise((resolve,reject)=>{
+        if (res instanceof Set) res = Array.from(res);
+        else if (res instanceof Error) res = res.toString();
+
+        client.write(typeof res === "object" ? JSON.stringify(res) : res?.toString(), (err) => {
+          if(err) return reject(err);
+          resolve();
+        });
       })
-      .catch(_handleError);
+    }
+
+    client.connect(process.env.RESULT_PORT, "127.0.0.1", function () {
+      functions[params.action.method.name](params.action, params.settings)
+        // Send success result and exit
+        .then(function (res) {
+          return sendResult(res).then(()=>exit(0));
+        })
+        // Send error result, and handle error
+        .catch(err=>{
+          return sendResult(err).then(()=>_handleError(err))
+        })
+        // Handle Send Result error 
+        .catch(sendErr=>_handleError(sendErr));
+    });
   } catch (err) {
     _handleError(err);
   }
@@ -59,9 +80,7 @@ function exit(code) {
 }
 
 function _handleError(error) {
-  console.error("Error : ", error);
-
-  switch (error.code) {
+  switch (error?.code) {
     case "MODULE_NOT_FOUND":
       exit(100);
   }

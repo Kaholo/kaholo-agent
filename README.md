@@ -32,7 +32,6 @@ For all installaion options please visit our [documentation]
 
 ## Configrution
 All configuration options can be found in `kaholo-agent.conf`.
-- PORT: the port for the agent to run on.
 - SERVER_URL: The Kaholo server URL.
 - AGENT_KEY: Random 32 bytes string, the unique identifier for the agent
 
