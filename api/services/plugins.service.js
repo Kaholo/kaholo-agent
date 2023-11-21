@@ -28,21 +28,21 @@ class PluginsService {
       path.join(pluginPath, pluginConfFileName)
     );
     if (!isConfFileExists) {
-      throw `Invalid plugin dir: No ${pluginConfFileName} file (${pluginPath})`;
+      throw new Error(`Invalid plugin dir: No ${pluginConfFileName} file (${pluginPath})`);
     }
 
     let pluginConf;
     try {
       pluginConf = require(path.join(pluginPath, pluginConfFileName));
     } catch (err) {
-      throw `Error parsing ${pluginConfFileName}: ${err.message} (${pluginPath})`;
+      throw new Error(`Error parsing ${pluginConfFileName}: ${err.message} (${pluginPath})`);
     }
 
     if (!pluginConf.name) {
-      throw `Invalid ${pluginConfFileName}: plugin name missing (${pluginPath})`;
+      throw new Error(`Invalid ${pluginConfFileName}: plugin name missing (${pluginPath})`);
     }
 
-    return pluginConf;
+    return {...pluginConf};
   }
 
   /**
@@ -51,38 +51,26 @@ class PluginsService {
    */
   async loadPluginDir(pluginPath) {
     const pluginConf = await this.validatePluginDirectory(pluginPath);
-
-    if (!this.plugins.hasOwnProperty(pluginConf.name)) {
-      pluginConf.main = path.join(pluginPath, pluginConf.main);
-      this.plugins[pluginConf.name] = pluginConf;
-    }
-    return this.plugins[pluginConf.name];
+    pluginConf.main = path.join(pluginPath, pluginConf.main);
+    this.plugins[pluginConf.name] = this.plugins[pluginConf.name] || {};
+    this.plugins[pluginConf.name][pluginConf.version] = pluginConf;
   }
 
-  async loadAllInsalledPlugins() {
-    const pluginsDirData = await fs.readdir(process.env.PLUGINS_DIR_PATH);
-    const plugins = [];
-    for (let i = 0, length = pluginsDirData.length; i < length; i++) {
-      const itemPath = path.join(
+  async loadAllInstalledPlugins() {
+    const pluginsDirContent = await fs.readdir(process.env.PLUGINS_DIR_PATH);
+    for (const pluginDir of pluginsDirContent) {
+      const pluginPath = path.join(
         process.env.PLUGINS_DIR_PATH,
-        pluginsDirData[i]
+        pluginDir
       );
-      const itemLstat = await fs.lstat(itemPath);
-
-      if (itemLstat.isDirectory()) plugins.push(itemPath);
+      const versionsDirContent = await fs.readdir(pluginPath);
+      for (const version of versionsDirContent) {
+        await this.loadPluginDir(path.join(pluginPath, version));
+      }
     }
-
-    return Promise.all(
-      plugins.map((pluginPath) => {
-        return this.loadPluginDir(pluginPath).catch((err) => {
-          console.error(err);
-        });
-      })
-    );
   }
 
   async install(zipFilePath) {
-    // Extarct plugin zip file
     const tmpPath = path.join(
       process.env.BASE_DIR,
       "tmp",
@@ -103,7 +91,8 @@ class PluginsService {
     // Move TMP extraction dir to final installation path
     const pluginInstallPath = path.join(
       process.env.PLUGINS_DIR_PATH,
-      pluginConf.name
+      pluginConf.name,
+      pluginConf.version
     );
     try {
       await fs.move(tmpPath, pluginInstallPath, { overwrite: true });
@@ -117,7 +106,7 @@ class PluginsService {
 
     // Install plugin dependencies
     await this.installPluginDependencies(pluginInstallPath, pluginConf);
-    
+
     // Load Plugin
     await this.loadPluginDir(pluginInstallPath);
   }
@@ -145,16 +134,16 @@ class PluginsService {
     }
   }
 
-  async getAutocompleteFromFunction(pluginName, functionName, query, pluginSettings, actionParams) {
-    const pluginConf = this.plugins[pluginName];
+  async getAutocompleteFromFunction(pluginName, pluginVersion, functionName, query, pluginSettings, actionParams) {
+    const pluginConf = this.plugins[pluginName][pluginVersion];
     let queryFunction;
 
     if (!pluginConf) {
       throw new Error('Plugin not found!');
     }
-    
+
     queryFunction = requireUncached(pluginConf.main)[functionName];
-    
+
     if (queryFunction && typeof queryFunction === 'function') {
       return queryFunction(query, pluginSettings, actionParams)
     } else {
@@ -171,9 +160,9 @@ class PluginsService {
     });
   }
 
-  deleteZipFile(id) {
+  deleteZipFile(filePath) {
     return new Promise((resolve, reject) => {
-      rimraf(`/twiddlebug/uploads/${id}.zip`, (err, res) => {
+      rimraf(filePath, (err, res) => {
         if (err) return reject(err);
         else return resolve(res);
       });
@@ -182,7 +171,7 @@ class PluginsService {
 
   getVersions() {
     return Object.keys(this.plugins).reduce((total, current) => {
-      total[current] = this.plugins[current].version;
+      total[current] = Object.keys(this.plugins[current]);
       return total;
     }, {});
   }

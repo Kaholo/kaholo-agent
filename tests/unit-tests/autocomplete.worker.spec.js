@@ -14,6 +14,7 @@ describe("Autocomplete Worker tests", () => {
         actionParams: [],
         pluginSettings: [],
         pluginName: "pluginName",
+        pluginVersion: "pluginVersion",
         functionName: "functionName",
         query: "query"
     }
@@ -35,6 +36,7 @@ describe("Autocomplete Worker tests", () => {
         expect(pluginsService.getAutocompleteFromFunction).toBeCalledTimes(1);
         expect(pluginsService.getAutocompleteFromFunction).toBeCalledWith(
             requestData.pluginName,
+            requestData.pluginVersion,
             requestData.functionName,
             requestData.query,
             requestData.actionParams,

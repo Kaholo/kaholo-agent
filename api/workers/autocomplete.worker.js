@@ -4,7 +4,7 @@ const pluginsService = require("../services/plugins.service");
 async function processAutocompleteRequest({ requestData: autocompleteRequest }) {
     logger.info("Getting autocomplete from plugin function");
     let autocompleteResult;
-    let { actionParams, pluginSettings, pluginName, functionName, query } = autocompleteRequest;
+    let { actionParams, pluginSettings, pluginName, pluginVersion, functionName, query } = autocompleteRequest;
     if (!actionParams || !Array.isArray(actionParams)) {
       actionParams = [];
     }
@@ -13,8 +13,9 @@ async function processAutocompleteRequest({ requestData: autocompleteRequest }) 
     }
 
     try {
-        autocompleteResult = await pluginsService.getAutocompleteFromFunction(
+      autocompleteResult = await pluginsService.getAutocompleteFromFunction(
         pluginName,
+        pluginVersion,
         functionName,
         query,
         pluginSettings,

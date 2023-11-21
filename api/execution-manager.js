@@ -4,7 +4,7 @@ const process = require("process");
 const fs = require("fs");
 const net = require("net");
 const getPort = require("get-port");
-const { eventsWorker, VHOST, rpcRequest } = require("@kaholo/shared");
+const { eventsWorker, VHOST } = require("@kaholo/shared");
 
 const pluginsService = require("./services/plugins.service");
 const workersPath = path.join(__dirname, "../workers");
@@ -22,7 +22,6 @@ class ExecutionManager {
   }
 
   async execute({ runId, settings, action, pipelineExecutionId }) {
-    const pluginName = action.plugin.name;
     const actionExecutionId = action.actionExecutionId;
 
     let result = {
@@ -31,30 +30,6 @@ class ExecutionManager {
       result: [],
     };
     let errorCode = "";
-
-    if (!pluginsService.plugins.hasOwnProperty(pluginName) || !fs.existsSync(pluginsService.plugins[pluginName]?.main)) {
-      // Install the plugin
-      let result;
-      try {
-        result = await rpcRequest({
-          requestVhost: VHOST.RESULTS,
-          requestQueue: "Bigbird/Twiddlebug/PluginInstall",
-          responseVhost: VHOST.ACTIONS,
-          requestData: {
-            agentKey: process.env.AGENT_KEY,
-            pluginName: action.plugin.name,
-            pluginVersion: action.plugin.version
-          },
-          retries: 1
-        });
-      } catch (err) {
-        throw new Error("Error during plugin installation", err);
-      }
-      
-      if (!result?.success) {
-        throw new Error("Could not install the required plugin");
-      }
-    }
 
     const executionData = {
       settings,
@@ -66,7 +41,16 @@ class ExecutionManager {
     server.listen(port, "127.0.0.1");
 
     return new Promise((resolve) => {
-      const pluginConf = pluginsService.plugins[pluginName];
+      let pluginConf;
+      if (action.plugin) {
+        pluginConf = pluginsService.plugins[action.plugin.name][action.plugin.version];
+      } else {
+        pluginConf = {
+          execProgram: "node",
+          main: action.internal.path,
+        };
+      }
+
       let workerProcess;
 
       const spawnOptions = {
@@ -81,8 +65,8 @@ class ExecutionManager {
           AMQP_URI_RESULTS: undefined,
           AMQP_URI_ACTIONS: undefined,
           AMQP_RESULT_QUEUE: undefined,
-          PLUGINS_DIR_PATH: undefined
-        }
+          PLUGINS_DIR_PATH: undefined,
+        },
       };
 
       if (!fs.existsSync(spawnOptions.cwd)) {
@@ -137,11 +121,14 @@ class ExecutionManager {
                   base64data: data.toString("base64"),
                   pipelineExecutionId,
                   executionLogsQueueId: `logs-${pipelineExecutionId}`,
-                }
-              }
+                },
+              },
             });
           } else {
-            console.error('Unexpected data from spawned worker after exit event:', data.toString());
+            console.error(
+              "Unexpected data from spawned worker after exit event:",
+              data.toString()
+            );
           }
         });
       });
@@ -161,11 +148,14 @@ class ExecutionManager {
                 base64data: data.toString("base64"),
                 pipelineExecutionId,
                 executionLogsQueueId: `logs-${pipelineExecutionId}`,
-              }
-            }
+              },
+            },
           });
         } else {
-          console.error('Unexpected stdout from spawned worker after exit event:', data.toString());
+          console.error(
+            "Unexpected stdout from spawned worker after exit event:",
+            data.toString()
+          );
         }
       });
 
@@ -184,15 +174,18 @@ class ExecutionManager {
                 base64data: data.toString("base64"),
                 pipelineExecutionId,
                 executionLogsQueueId: `logs-${pipelineExecutionId}`,
-              }
-            }
+              },
+            },
           });
         } else {
-          console.error('Unexpected stderr from spawned worker after exit event:', data.toString());
+          console.error(
+            "Unexpected stderr from spawned worker after exit event:",
+            data.toString()
+          );
         }
       });
 
-      workerProcess.on("error", error => {
+      workerProcess.on("error", (error) => {
         console.error("child process error: ", error);
         result.status = "error";
         result.result = error;
@@ -216,14 +209,14 @@ class ExecutionManager {
           code === 0
             ? "success"
             : errorCode === "SIGKILL"
-              ? "stopped"
-              : "error";
+            ? "stopped"
+            : "error";
 
         this.actionDone(runId);
         result.result = Buffer.concat(result.result).toString("utf8").trim();
         try {
           result.result = JSON.parse(result.result);
-        } catch (e) { }
+        } catch (e) {}
 
         result.stdout = Buffer.concat(result.stdout).toString("utf8").trim();
         result.stderr = Buffer.concat(result.stderr).toString("utf8").trim();
@@ -244,9 +237,7 @@ class ExecutionManager {
   }
 
   killAction(runId) {
-    if (
-      !this.executions.hasOwnProperty(runId)
-    ) {
+    if (!this.executions.hasOwnProperty(runId)) {
       return false;
     }
 

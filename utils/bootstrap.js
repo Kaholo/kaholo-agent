@@ -9,9 +9,9 @@ const initConsumers = require("../api/consumers");
 async function bootstrap() {
   logger.info("Loading plugins modules...");
   try {
-    await pluginsService.loadAllInsalledPlugins();
+    await pluginsService.loadAllInstalledPlugins();
   } catch (error) {
-    console.error(error)
+    console.error("Error during loading plugins:", error)
   }
   logger.info("Finish loading plugins");
   logger.info("Configuring AMQP service");
@@ -24,6 +24,7 @@ async function bootstrap() {
 
   logger.info("Configuring consumers");
   await initConsumers();
+  await eventsWorker.connectConsumers();
   logger.info("Consumers configured");
 
   await registerPromise;

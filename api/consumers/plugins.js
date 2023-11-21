@@ -46,19 +46,19 @@ module.exports = async function initPluginConsumers() {
     vhost: VHOST.ACTIONS,
     prefetchValue: 1,
     callback: async (data) => {
+      const pluginName = data.requestData.name;
       try {
-        if (!data.requestData.id) {
-          throw new Error("Missing plugin id");
+        if (!pluginName) {
+          throw new Error("Missing plugin name");
         }
-        const pluginId = data.requestData.id;
-        const uploadDirPath = resolve(__dirname, "..", "..", "uploads");
+        const uploadDirPath = process.env.UPLOADS_DIR_PATH || resolve(__dirname, "..", "..", "uploads");
 
-        const uploadPath = resolve(uploadDirPath, `${pluginId}.zip`);
+        const uploadPath = resolve(uploadDirPath, `${pluginName}.zip`);
 
         await fs.mkdir(uploadDirPath, { recursive: true });
 
         const response = await fetch(
-          `${process.env.SERVER_URL}/api/plugins/download/${pluginId}`,
+          `${process.env.SERVER_URL}/api/plugins/download/${pluginName}`,
           {
             headers: {
               "x-agent-key": process.env.AGENT_KEY,
@@ -69,7 +69,7 @@ module.exports = async function initPluginConsumers() {
         );
 
         if (!response.ok) {
-          throw new Error(`Failed to download plugin ${pluginId}`);
+          throw new Error(`Failed to download plugin ${pluginName}`);
         }
 
         const serverTimestamp = response.headers.get("x-server-timestamp");
@@ -84,7 +84,7 @@ module.exports = async function initPluginConsumers() {
         await fs.writeFile(uploadPath, file);
 
         await pluginsService.install(uploadPath);
-        await pluginsService.deleteZipFile(pluginId);
+        await pluginsService.deleteZipFile(uploadPath);
 
         return {
           ok: true,

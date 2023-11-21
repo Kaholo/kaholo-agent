@@ -1,28 +1,38 @@
-const { eventsWorker } = require("@kaholo/shared");
 const executionManager = require("../execution-manager");
 const logger = require("../services/logger");
+const { getCloneExecutionData } = require("../services/actions/clone.service");
 
 async function processExecutionRequest(executionRequest, { publish }) {
   logger.info(`Start processing action "${executionRequest.actionExecutionId}"`);
-  const executionData = {
-    pipelineExecutionId: executionRequest.pipelineExecutionId,
-    runId: executionRequest.runId,
-    settings: executionRequest.pluginSettings,
-    action: {
-      plugin: {
-        name: executionRequest.plugin?.name,
-        version: executionRequest.plugin?.version
-      },
-      timeout: executionRequest.timeout,
-      _id: executionRequest.actionId,
-      id: executionRequest.actionId,
-      method: {
-        name: executionRequest.actionMethod.name
-      },
-      params: executionRequest.params,
-      actionExecutionId: executionRequest.actionExecutionId,
-    }
+  let executionData;
+
+  switch (executionRequest.type) {
+    case "clone":
+      executionData = getCloneExecutionData(executionRequest);
+      break;
+    case "plugin":
+    default:
+      executionData = {
+        pipelineExecutionId: executionRequest.pipelineExecutionId,
+        runId: executionRequest.runId,
+        settings: executionRequest.pluginSettings || {},
+        action: {
+          plugin: {
+            name: executionRequest.plugin?.name,
+            version: executionRequest.plugin?.version
+          },
+          timeout: executionRequest.timeout,
+          _id: executionRequest.actionId,
+          id: executionRequest.actionId,
+          method: {
+            name: executionRequest.actionMethod.name
+          },
+          params: executionRequest.params,
+          actionExecutionId: executionRequest.actionExecutionId,
+        }
+      };
   }
+
   const executionResult = await executionManager.execute(executionData);
   executionResult.agentKey = process.env.AGENT_KEY;
   executionResult.actionExecutionId = executionRequest.actionExecutionId;
