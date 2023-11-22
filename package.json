@@ -1,6 +1,6 @@
 {
   "name": "kaholo-agent",
-  "version": "6.2.0",
+  "version": "6.2.1",
   "description": "Agent for Kaholo",
   "main": "app.js",
   "scripts": {
